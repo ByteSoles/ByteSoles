@@ -63,3 +63,6 @@ def remove_from_cart(request, item_id):
     request.session['keranjang'] = keranjang
     
     return redirect('keranjang:view_keranjang')
+
+def checkout(request):
+    return render(request, 'checkout.html') 

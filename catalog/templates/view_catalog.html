@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-6">Catalog Sepatu Sneakers</h1>
+
+    <!-- Filter Section -->
+    <div class="flex space-x-4 mb-6">
+        <button id="price-filter-btn" class="px-4 py-2 bg-gray-200 rounded-full">Price</button>
+        <div id="price-filter" class="hidden">
+            <input type="range" id="price-min" min="50" max="500" step="10" value="50">
+            <input type="range" id="price-max" min="50" max="500" step="10" value="500">
+            <p id="price-range">Price: $50 - $500</p>
+        </div>
+        <!-- Placeholder for Active Filters -->
+        <div id="active-filters" class="flex space-x-4"></div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-grid">
+        {% for sneaker in sneakers %}
+        <div class="product border rounded-lg overflow-hidden shadow-md">
+            <div class="relative">
+                <!-- Product Image -->
+                <img src="{{ sneaker.image.url }}" alt="{{ sneaker.name }}" class="w-full h-48 object-cover">
+
+                <!-- Like Button -->
+                <span class="absolute top-2 right-2 bg-white p-2 rounded-full shadow">
+                    <svg class="w-5 h-5 text-gray-500 hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Product Details -->
+            <div class="p-4">
+                <h2 class="text-lg font-semibold">{{ sneaker.name }}</h2>
+                <p class="text-gray-600">{{ sneaker.brand }}</p>
+                <p class="mt-2 text-lg font-bold text-gray-900">${{ sneaker.price }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+// Show price filter section when "Price" button is clicked
+document.getElementById('price-filter-btn').addEventListener('click', function() {
+    var priceFilter = document.getElementById('price-filter');
+    if (priceFilter.classList.contains('hidden')) {
+        priceFilter.classList.remove('hidden');
+    } else {
+        priceFilter.classList.add('hidden');
+    }
+});
+
+// Update the price range text when sliders are adjusted
+document.getElementById('price-min').addEventListener('input', updatePriceRange);
+document.getElementById('price-max').addEventListener('input', updatePriceRange);
+
+function updatePriceRange() {
+    var minPrice = document.getElementById('price-min').value;
+    var maxPrice = document.getElementById('price-max').value;
+    document.getElementById('price-range').innerText = `Price: $${minPrice} - $${maxPrice}`;
+}
+
+// Apply the price filter when sliders are adjusted
+document.getElementById('price-max').addEventListener('change', applyPriceFilter);
+document.getElementById('price-min').addEventListener('change', applyPriceFilter);
+
+function applyPriceFilter() {
+    var minPrice = parseInt(document.getElementById('price-min').value);
+    var maxPrice = parseInt(document.getElementById('price-max').value);
+
+    var productGrid = document.getElementById('product-grid');
+    var products = productGrid.getElementsByClassName('product');
+
+    // Filter products based on price
+    for (var i = 0; i < products.length; i++) {
+        var price = parseFloat(products[i].querySelector('.text-gray-900').textContent.replace('$', ''));
+        if (price >= minPrice && price <= maxPrice) {
+            products[i].style.display = 'block'; // Show product
+        } else {
+            products[i].style.display = 'none'; // Hide product
+        }
+    }
+
+    // Display the active price filter tag
+    var activeFilters = document.getElementById('active-filters');
+    var existingPriceFilter = document.getElementById('active-price-filter');
+    if (existingPriceFilter) {
+        existingPriceFilter.innerText = `Price: $${minPrice} - $${maxPrice} ×`;
+    } else {
+        var filterTag = document.createElement('div');
+        filterTag.id = 'active-price-filter';
+        filterTag.className = 'px-4 py-2 bg-gray-200 rounded-full';
+        filterTag.innerText = `Price: $${minPrice} - $${maxPrice} ×`;
+        activeFilters.appendChild(filterTag);
+
+        // Add click event to remove the price filter
+        filterTag.addEventListener('click', function() {
+            filterTag.remove();
+            // Reset all products to be visible
+            for (var i = 0; i < products.length; i++) {
+                products[i].style.display = 'block';
+            }
+        });
+    }
+}
+</script>
+
+{% endblock content %}
