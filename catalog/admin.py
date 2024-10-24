@@ -3,7 +3,7 @@ from catalog.models import Sneaker
 # Register your models here.
 
 class SneakerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'price', 'release_date')
+    list_display = ('name', 'brand', 'price', 'release_date','image')
     search_fields = ('name', 'brand')
 
 class CategoryAdmin(admin.ModelAdmin):

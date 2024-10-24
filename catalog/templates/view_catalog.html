@@ -1,13 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<!-- Main Container -->
 <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-6">Catalog Sepatu Sneakers</h1>
+
+    <!-- Title Section -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold">Shop Now, Goodlook Later</h1>
+        <p class="text-gray-500 mt-2">We have a bunch collection for you!, let’s go explore and find your dream shoes, make it happen.</p>
+    </div>
 
     <!-- Filter Section -->
-    <div class="flex space-x-4 mb-6">
-        <!-- Price Filter Dropdown -->
-        <div class="relative z-50"> <!-- Menambahkan z-50 untuk memastikan dropdown berada di atas produk -->
+    <div class="flex justify-center space-x-4 mb-8">
+        <!-- Dropdown for brand -->
+        <select id="brand-select" class="px-4 py-2 bg-gray-200 rounded-full">
+            <option value="all">All Brands</option>
+            <option value="Jordan">Jordan</option>
+            <option value="Nike">Nike</option>
+            <option value="adidas">adidas</option>
+            <option value="New Balance">New Balance</option>
+            <option value="Crocs">Crocs</option>
+            <option value="MSCHF">MSCHF</option>
+        </select>
+
+        <!-- Dropdown for Price -->
+        <div class="relative z-50">
             <button id="price-dropdown-btn" class="px-4 py-2 bg-gray-200 rounded-full">
                 Price
             </button>
@@ -33,9 +50,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- Placeholder for Active Filters -->
-        <div id="active-filters" class="flex space-x-4"></div>
     </div>
 
     <!-- Product Grid -->
@@ -45,11 +59,12 @@
 </div>
 
 <script>
-// Get slider elements
+// Get slider and brand elements
 const minPriceSlider = document.getElementById('min-price');
 const maxPriceSlider = document.getElementById('max-price');
 const minPriceValue = document.getElementById('min-price-value');
 const maxPriceValue = document.getElementById('max-price-value');
+const brandSelect = document.getElementById('brand-select');
 
 // Function to update the displayed min and max price values
 function updateSliderTrack() {
@@ -76,78 +91,75 @@ maxPriceSlider.addEventListener('input', updateSliderTrack);
 
 // Toggle price dropdown visibility
 document.getElementById('price-dropdown-btn').addEventListener('click', function() {
-    var dropdown = document.getElementById('price-dropdown');
-    dropdown.classList.toggle('hidden');
+    const dropdown = document.getElementById('price-dropdown');
+    dropdown.classList.toggle('hidden');  // Toggle visibility
 });
 
-// Apply price filter when the button is clicked
-document.getElementById('apply-price-filter').addEventListener('click', function() {
-    var minPrice = parseInt(minPriceSlider.value);
-    var maxPrice = parseInt(maxPriceSlider.value);
-    
-    applyPriceFilter(minPrice, maxPrice);
-    document.getElementById('price-dropdown').classList.add('hidden');
-});
-
-// Apply the price filter logic based on selected min and max price
-function applyPriceFilter(minPrice, maxPrice) {
-    refreshProducts(minPrice, maxPrice);
-    
-    const activeFilters = document.getElementById('active-filters');
-    const existingPriceFilter = document.getElementById('active-price-filter');
-    if (existingPriceFilter) {
-        existingPriceFilter.innerText = `Price: $${minPrice} - $${maxPrice} ×`;
-    } else {
-        const filterTag = document.createElement('div');
-        filterTag.id = 'active-price-filter';
-        filterTag.className = 'px-4 py-2 bg-gray-200 rounded-full';
-        filterTag.innerText = `Price: $${minPrice} - $${maxPrice} ×`;
-        activeFilters.appendChild(filterTag);
-
-        // Add click event to remove the price filter
-        filterTag.addEventListener('click', function() {
-            filterTag.remove();
-            refreshProducts();  // Reload all products without filter
-        });
-    }
+// Apply filters for both price and brand
+function applyFilters(minPrice, maxPrice, brand) {
+    refreshProducts(minPrice, maxPrice, brand);
 }
 
-// Function to fetch and refresh products
-async function refreshProducts(minPrice = 50, maxPrice = 500) {
+// Function to fetch and refresh products based on selected filters
+async function refreshProducts(minPrice = 50, maxPrice = 500, brand = 'all') {
     document.getElementById("product_table").innerHTML = "";
 
-    const products = await getProducts();
+    const products = await getProducts(minPrice, maxPrice, brand);
 
     let htmlString = "";
 
     products.forEach((item) => {
-        const price = item.fields.price;
-        if (price >= minPrice && price <= maxPrice) {
-            htmlString += `
+        const price = item.price;
+        htmlString += `
             <div class="relative bg-white shadow-md rounded-lg mb-6 flex flex-col border border-gray-200 p-4">
                 <!-- Product Image -->
-                <img src="${item.fields.image}" alt="${item.fields.name}" class="w-full h-48 object-cover mb-4">
+                <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover mb-4">
                 
                 <!-- Product Details -->
                 <div class="flex flex-col justify-between">
-                    <h3 class="text-black font-bold text-lg mb-2">${item.fields.name}</h3>
-                    <p class="text-gray-500">${item.fields.brand}</p>
-                    <p class="text-black font-semibold text-lg">$${item.fields.price}</p>
+                    <h3 class="text-black font-bold text-lg mb-2">${item.name}</h3>
+                    <p class="text-gray-500">${item.brand}</p>
+                    <p class="text-black font-semibold text-lg">$${item.price}</p>
                 </div>
             </div>
-            `;
-        }
+        `;
     });
 
-    // Display the products in a grid layout
     document.getElementById("product_table").className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6";
     document.getElementById("product_table").innerHTML = htmlString;
 }
 
-// Fetch products as JSON
-async function getProducts() {
-    return fetch("{% url 'catalog:get_product_json' %}").then((res) => res.json());
+// Fetch products as JSON with brand and price filters
+async function getProducts(minPrice, maxPrice, brand) {
+    const url = new URL("{% url 'catalog:get_filtered_products' %}", window.location.origin);
+    url.searchParams.append('min_price', minPrice);
+    url.searchParams.append('max_price', maxPrice);
+    if (brand !== 'all') {
+        url.searchParams.append('brand', brand);
+    }
+    return fetch(url).then((res) => res.json());
 }
+
+// Event listener for brand select dropdown
+brandSelect.addEventListener('change', function() {
+    const minPrice = parseInt(minPriceSlider.value);
+    const maxPrice = parseInt(maxPriceSlider.value);
+    const selectedBrand = brandSelect.value;
+
+    applyFilters(minPrice, maxPrice, selectedBrand);
+});
+
+// Event listener for Apply button
+document.getElementById('apply-price-filter').addEventListener('click', function() {
+    const minPrice = parseInt(minPriceSlider.value);
+    const maxPrice = parseInt(maxPriceSlider.value);
+    const selectedBrand = brandSelect.value;
+
+    applyFilters(minPrice, maxPrice, selectedBrand);
+
+    // Hide the dropdown after applying the filter
+    document.getElementById('price-dropdown').classList.add('hidden');
+});
 
 // Initialize slider track on load
 updateSliderTrack();

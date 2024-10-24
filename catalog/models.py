@@ -26,6 +26,7 @@ class Sneaker(models.Model):
     brand = models.CharField(max_length=255)
     price = models.IntegerField()
     release_date = models.DateField()
+    image = models.URLField()
 
 
     class Meta:

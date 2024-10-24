@@ -3,6 +3,7 @@ import django
 import pandas as pd
 from catalog.models import Sneaker  # Adjust with your app name
 from datetime import datetime
+from django.conf import settings
 
 # Set the settings module for the Django project
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'midterm_project.settings')
@@ -11,7 +12,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'midterm_project.settings')
 django.setup()
 
 # Read CSV file into a DataFrame
-csv_file_path = '../dataset/sneakers.csv'
+csv_file_path = 'dataset/sneakers.csv'
+
 
 # Check if the file exists
 if os.path.exists(csv_file_path):
@@ -20,7 +22,7 @@ else:
     print("File not found.")
 
 # Read the CSV file
-df = pd.read_csv(csv_file_path)
+df = pd.read_csv(csv_file_path, on_bad_lines='skip')
 
 
 for index, row in df.iterrows():
@@ -32,6 +34,7 @@ for index, row in df.iterrows():
         name=row['item'],
         brand=row['brand'],
         price=row['retail'],
+        image=row['image'],
         release_date=release_date,  
     )
     
