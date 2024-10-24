@@ -52,8 +52,7 @@
 
             <!-- Button to go back to homepage -->
             <div class="mt-8 flex justify-center space-x-4">
-                {% comment %} href="{% url 'home_page' %}"  {% endcomment %}
-                <a class="bg-green-500 text-white font-semibold py-3 px-10 rounded-lg shadow-lg hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-105">
+                <a href="{% url 'homepage:show_homepage' %}" class="bg-green-500 text-white font-semibold py-3 px-10 rounded-lg shadow-lg hover:bg-green-600 transition-all duration-300 ease-in-out transform hover:scale-105">
                     Return to Homepage
                 </a>
             </div>
