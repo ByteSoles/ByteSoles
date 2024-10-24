@@ -1,18 +1,15 @@
-from django.shortcuts import render
-import datetime
-from django.shortcuts import render, redirect, reverse
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
-from django.core import serializers
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from django.utils.html import strip_tags
+# In detail_product/views.py
 
 from catalog.models import Sneaker
+from django.shortcuts import render, get_object_or_404
 
-def show_product(request):
-    return render(request, 'detail_product.html')
+def show_product(request, product_name):
+    # Use filter to get the product by name (adjust as needed)
+    product = get_object_or_404(Sneaker, name=product_name)
+    context = {
+        'product': product,
+    }
+    return render(request, "detail_product.html", context)
+
+def nyoba(request):
+    return render(request, "nyoba.html")

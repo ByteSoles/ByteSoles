@@ -1,7 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from catalog.models import Sneaker
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
+
 
 # Create your views here.
 
@@ -37,3 +38,10 @@ def get_filtered_products(request):
     } for product in products]
 
     return JsonResponse(product_list, safe=False)
+
+def show_product_by_name(request, product_name):
+    product = get_object_or_404(Sneaker, name=product_name)  # Find the product by name
+    context = {
+        'product': product,
+    }
+    return render(request, 'detail_product/detail_product.html', context)  # Adjust the path to the template
