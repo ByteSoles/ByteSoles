@@ -1,77 +1,180 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<Section padding="1600">
-    <Flex container type="half" wrap gap="1200">
-        <Image
-            src="{% static 'image/monster7.JPG' %}""
-            alt="Always use image alt"
-            size="large"
-            aspectRatio="4-3"
-        />
-        <FlexItem size="half">
-            <Flex
-                direction="column"
-                gap="600"
-                alignSecondary="stretch"
-            >
-                <TextHeading>Text Heading</TextHeading>
-                <FlexItem>
-                    <Flex direction="column" gap="200">
-                        <Tag variant="secondary" scheme="positive">
-                            Tag
-                        </Tag>
-                        <TextPrice label="/ mo" currency="$" price="50" />
-                    </Flex>
-                </FlexItem>
-                <Text>Text</Text>
-                <FlexItem>
-                    <Flex wrap type="half" gap="200">
-                        <SelectField
-                            defaultSelectedKey="Value"
-                            label="Label"
-                            value="Value"
-                            placeholder="I am a placeholder..."
-                        >
-                            <SelectItem>Value</SelectItem>
-                            <SelectItem>Option 2</SelectItem>
-                            <SelectItem>Option 3</SelectItem>
-                            <SelectItem>Option 4</SelectItem>
-                            <SelectItem>Option 5</SelectItem>
-                        </SelectField>
-                        <SelectField
-                            defaultSelectedKey="Value"
-                            label="Label"
-                            value="Value"
-                            placeholder="I am a placeholder..."
-                        >
-                            <SelectItem>Value</SelectItem>
-                            <SelectItem>Option 2</SelectItem>
-                            <SelectItem>Option 3</SelectItem>
-                            <SelectItem>Option 4</SelectItem>
-                            <SelectItem>Option 5</SelectItem>
-                        </SelectField>
-                    </Flex>
-                </FlexItem>
-                <Button onClick="handleButtonClick()" variant="primary">
-                    Button
-                </Button>
-                <Accordion>
-                    <AccordionItem
-                        title="Title"
-                        children="Answer the frequently asked question in a simple sentence, a longish paragraph, or even in a list."
-                    />
-                </Accordion>
-            </Flex>
-        </FlexItem>
-    </Flex>
-</Section>
+<!-----------Product details-------------->
 
-<script>
-    function handleButtonClick() {
-        // Your JavaScript code here
-        console.log('Button clicked');
-    }
-</script>
+<div class="PageProduct w-100% h-[583px] p-16 bg-white flex-col justify-start items-start gap-6 inline-flex">
+    <div class="Section self-stretch justify-start items-start gap-16 inline-flex">
+      <img class="Image grow shrink basis-0 self-stretch" src="https://via.placeholder.com/504x455" />
+      <div class="IconButton p-2 bg-[#2c2c2c] rounded-[32px] border border-[#2c2c2c] justify-center items-center flex">
+        <div class="Heart w-5 h-5 relative"></div>
+      </div>
+      <div class="Column grow shrink basis-0 flex-col justify-center items-start gap-6 inline-flex">
+        <div class="Body self-stretch h-[167px] flex-col justify-start items-start gap-4 flex">
+          <div class="Title self-stretch h-[129px] flex-col justify-start items-start gap-4 flex">
+            <div class="TextHeading self-stretch justify-start items-start inline-flex">
+              <div class="TextHeading text-[#1e1e1e] text-2xl font-semibold font-['Inter'] leading-[28.80px]">Text Heading</div>
+            </div>
+            <div class="Price self-stretch h-[84px] flex-col justify-center items-start gap-1 flex">
+              <div class="Tag p-2 bg-[#cff7d3] rounded-lg justify-center items-center gap-2 inline-flex">
+                <div class="Tag text-[#02542d] text-base font-normal font-['Inter'] leading-none">Tag</div>
+              </div>
+              <div class="TextPrice justify-center items-end inline-flex">
+                <div class="Price justify-start items-start flex">
+                  <div class=" text-[#1e1e1e] text-2xl font-bold font-['Inter'] leading-normal">$</div>
+                  <div class=" text-[#1e1e1e] text-5xl font-bold font-['Inter'] leading-[48px]">50</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="Text self-stretch justify-start items-start inline-flex">
+            <div class="Text grow shrink basis-0 text-[#757575] text-base font-normal font-['Inter'] leading-snug">Text</div>
+          </div>
+        </div>
+        <div class="Fields self-stretch justify-start items-center gap-6 inline-flex">
+          <div class="SelectField grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
+            <div class="Label self-stretch text-[#1e1e1e] text-base font-normal font-['Inter'] leading-snug">Label</div>
+            <div class="Select self-stretch h-10 pl-4 pr-3 py-3 bg-white rounded-lg border border-[#d9d9d9] justify-start items-center gap-2 inline-flex">
+              <div class="Value grow shrink basis-0 text-[#1e1e1e] text-base font-normal font-['Inter'] leading-none">Value</div>
+              <div class="ChevronDown w-4 h-4 relative"></div>
+            </div>
+          </div>
+          <div class="SelectField grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
+            <div class="Label self-stretch text-[#1e1e1e] text-base font-normal font-['Inter'] leading-snug">Label</div>
+            <div class="Select self-stretch h-10 pl-4 pr-3 py-3 bg-white rounded-lg border border-[#d9d9d9] justify-start items-center gap-2 inline-flex">
+              <div class="Value grow shrink basis-0 text-[#1e1e1e] text-base font-normal font-['Inter'] leading-none">Value</div>
+              <div class="ChevronDown w-4 h-4 relative"></div>
+            </div>
+          </div>
+        </div>
+        <div class="Button self-stretch p-3 bg-[#2c2c2c] rounded-lg border border-[#2c2c2c] justify-center items-center gap-2 inline-flex">
+          <div class="Button text-neutral-100 text-base font-normal font-['Inter'] leading-none">Button</div>
+        </div>
+        <div class="Accordion self-stretch h-[106px] flex-col justify-start items-start gap-4 flex">
+          <div class="AccordionItem self-stretch h-[106px] p-4 bg-white rounded-lg border border-[#d9d9d9] flex-col justify-start items-start gap-2 flex">
+            <div class="AccordionTitle self-stretch justify-start items-center gap-2 inline-flex">
+              <div class="Title grow shrink basis-0 text-[#1e1e1e] text-base font-semibold font-['Inter'] leading-snug">Title</div>
+              <div class="ChevronUp w-5 h-5 relative"></div>
+            </div>
+            <div class="AccordionContent self-stretch justify-center items-center inline-flex">
+           
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-{% endblock content %}
+
+
+  
+<!----------Info Lanjut------------>
+
+  <div style="width: 100%; height: 468px; padding-top: 32px; padding-bottom: 160px; padding-left: 32px; padding-right: 32px; background: white; border-top: 1px #D9D9D9 solid; justify-content: flex-start; align-items: flex-start; gap: 16px; display: inline-flex">
+    <div style="width: 262px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 24px; display: inline-flex">
+      <div style="justify-content: center; align-items: center; display: inline-flex">
+        <div style="width: 23.33px; height: 35px; border: 3.50px #1E1E1E solid"></div>
+      </div>
+      <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex">
+        <div style="width: 23.98px; height: 24px; position: relative">
+          <div style="width: 23.98px; height: 24px; left: 0px; top: 0px; position: absolute; background: #1E1E1E"></div>
+        </div>
+        <div style="width: 24px; height: 24px; position: relative">
+          <div style="width: 24px; height: 24px; left: 0px; top: 0px; position: absolute; background: #1E1E1E"></div>
+        </div>
+        <div style="width: 24px; height: 24px; position: relative">
+          <div style="width: 24px; height: 18px; left: -0px; top: 3px; position: absolute; background: #1E1E1E"></div>
+        </div>
+        <div style="width: 24px; height: 24px; position: relative">
+          <div style="width: 24px; height: 24px; left: 0px; top: 0px; position: absolute; background: #1E1E1E"></div>
+        </div>
+      </div>
+    </div>
+    <div style="width: 262px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: inline-flex">
+      <div style="align-self: stretch; height: 38px; padding-bottom: 16px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+        <div style="align-self: stretch; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 600; line-height: 22.40px; word-wrap: break-word">Use cases</div>
+        </div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 17px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">UI design</div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 11px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">UX design</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: center; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Wireframing</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Diagramming</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Brainstorming</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Online whiteboard</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Team collaboration</div>
+      </div>
+    </div>
+    <div style="width: 262px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: inline-flex">
+      <div style="align-self: stretch; height: 38px; padding-bottom: 16px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+        <div style="align-self: stretch; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 600; line-height: 22.40px; word-wrap: break-word">Explore</div>
+        </div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 36px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Design</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: center; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Prototyping</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Development features</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Design systems</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Collaboration features</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Design process</div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 34px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">FigJam</div>
+      </div>
+    </div>
+    <div style="width: 262px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: inline-flex">
+      <div style="align-self: stretch; height: 38px; padding-bottom: 16px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: flex">
+        <div style="align-self: stretch; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 600; line-height: 22.40px; word-wrap: break-word">Resources</div>
+        </div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 55px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Blog</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Best practices</div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 40px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Colors</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: center; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Color wheel</div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 28px; justify-content: flex-start; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Support</div>
+      </div>
+      <div style="width: 89px; height: 22px; padding-right: 3px; justify-content: center; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Developers</div>
+      </div>
+      <div style="width: 89px; height: 22px; justify-content: flex-end; align-items: center; display: inline-flex">
+        <div style="color: #1E1E1E; font-size: 16px; font-family: Inter; font-weight: 400; line-height: 22.40px; word-wrap: break-word">Resource library</div>
+      </div>
+    </div>
+  </div>
+
+
+  {% endblock content %}

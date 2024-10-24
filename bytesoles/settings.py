@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'catalog',
     'homepage',
+    'detail_product',
+    'review',
 ]
 
 MIDDLEWARE = [
