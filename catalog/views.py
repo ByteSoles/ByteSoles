@@ -10,3 +10,4 @@ def view_catalog(request):
         'name': request.user.username,
     }
     return render(request, "view_catalog.html", context)
+
