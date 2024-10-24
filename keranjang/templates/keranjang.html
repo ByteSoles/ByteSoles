@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mx-auto text-center py-16">
     <!-- Jika keranjang tidak kosong, tampilkan daftar item -->
-    {% comment %} {% if item_keranjang %} {% endcomment %}
+    {% if item_keranjang %}
     <div class="container mx-auto py-16">
     <div class="flex flex-col lg:flex-row lg:justify-between gap-8">
 
@@ -89,15 +89,16 @@
 </div>
 
     <!-- Jika keranjang kosong, tampilkan pesan dan tombol -->
-    {% comment %} {% else %}
+    {% else %}
     <div class="container mx-auto text-center py-16">
         <h2 class="text-4xl font-bold mb-4"> YOUR BAG IS EMPTY </h2>
          <div class="flex space-x-4 justify-center">
-            <img src="{% static 'img/empty.png' %}" alt="BCA" class="w-40 " >
+            <img src="{% static 'img/empty.png' %}" class="w-40 " >
         </div>
 
         <!-- Tombol untuk mulai berbelanja -->
-        <a href="{% url 'keranjang:view_keranjang' %}" class="inline-block bg-black text-white py-3 px-6 rounded-lg font-bold hover:bg-gray-800 transition-colors">
+        {% comment %} <#url nya nanti ke home_page> {% endcomment %}
+        <a href="{% url 'keranjang:view_keranjang' %}" class="inline-block bg-black text-white py-3 px-6 rounded-lg font-bold transition-all duration-300 ease-in-out transform hover:scale-105">
             GET STARTED →
         </a>
 
@@ -114,6 +115,6 @@
             </div>
         </div>
     </div>
-    {% endif %} {% endcomment %}
+    {% endif %}
 </div>
 {% endblock content %}

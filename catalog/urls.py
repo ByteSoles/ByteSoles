@@ -5,5 +5,5 @@ app_name = 'catalog'
 
 urlpatterns = [
     path('', view_catalog, name='view_catalog'),
-
+    
 ]

@@ -1,5 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Sneaker
+from .models import PurchaseHistory
+from django.shortcuts import render
+
+
 
 def view_keranjang(request):
     # Ambil keranjang dari sesi (buat keranjang kosong jika tidak ada)
@@ -66,3 +70,9 @@ def remove_from_cart(request, item_id):
 
 def checkout(request):
     return render(request, 'checkout.html') 
+
+def payment_successful(request):
+    # Get the purchase history for the current user
+    purchase_history = PurchaseHistory.objects.filter(user=request.user).order_by('-purchase_date')
+
+    return render(request, 'payment_success.html', {'purchase_history': purchase_history})
