@@ -2,4 +2,12 @@ from django.contrib import admin
 from catalog.models import Sneaker
 # Register your models here.
 
-admin.site.register(Sneaker)
+class SneakerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'brand', 'price', 'release_date','image')
+    search_fields = ('name', 'brand')
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    
+admin.site.register(Sneaker, SneakerAdmin)

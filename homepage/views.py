@@ -45,3 +45,12 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('homepage:show_homepage'))
     response.delete_cookie('last_login')
     return response
+# Create your views here.
+def view_homepage(request):
+    context = {
+        'npm' : '2306123456',
+        'name': 'Pak Bepe',
+        'class': 'PBP E'
+    }
+
+    return render(request, "homepage.html", context)
