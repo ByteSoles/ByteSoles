@@ -9,14 +9,14 @@
     <div class="bg-white shadow-2xl rounded-lg p-8 flex flex-col md:flex-row"> <!-- Increased shadow -->
         <!-- Product Image -->
         <div class="flex-shrink-0 w-full md:w-1/2">
-            <img src="{% static 'image/monster7.JPG' %}" alt="Product Image" class="w-455 h-455 object-cover mb-4 md:mb-0"> <!-- Fixed size -->
+            <img src="{{ product.image }}" alt="{{ product.name }}" class="w-455 h-455 object-cover mb-4 md:mb-0"> <!-- Fixed size -->
         </div>
 
         <!-- Product Information -->
         <div class="mt-4 md:mt-5 md:ml-8 w-full md:w-1/2">
-            <h1 class="text-5xl font-bold mb-4">Product Name llalalalalalalal</h1>
-            <p class="text-gray-600 mb-4">Brand: Example Brand</p>
-            <p class="text-2xl font-semibold text-black mb-4">$100.00</p>
+            <h1 class="text-5xl font-bold mb-4">{{ product.name }}</h1>
+            <p class="text-gray-600 mb-4">{{ product.brand }}</p>
+            <p class="text-2xl font-semibold text-black mb-4">${{ product.price }}</p>
 
             <!-- Description -->
             <div class="text-gray-700 leading-relaxed mb-6">
@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    
+
 </div>
 
 {% endblock content %}

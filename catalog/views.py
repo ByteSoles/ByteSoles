@@ -35,13 +35,15 @@ def get_filtered_products(request):
         'brand': product.brand,
         'price': product.price,
         'image': product.image if product.image else '',  # Handle image URL
+        'slug': product.slug
     } for product in products]
 
     return JsonResponse(product_list, safe=False)
 
-def show_product_by_name(request, product_name):
-    product = get_object_or_404(Sneaker, name=product_name)  # Find the product by name
+def show_product_by_slug(request, product_slug):
+    product = get_object_or_404(Sneaker, slug=product_slug)  # Find the product by slug
+    print("Product Image URL:", product.image)
     context = {
         'product': product,
     }
-    return render(request, 'detail_product/detail_product.html', context)  # Adjust the path to the template
+    return render(request, 'detail_product.html', context)  # Ensure the template path is correct
