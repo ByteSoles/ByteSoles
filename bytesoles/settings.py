@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'catalog',
+    'keranjang',
     'homepage',
     'detail_product',
     'review',
