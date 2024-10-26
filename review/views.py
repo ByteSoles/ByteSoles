@@ -10,7 +10,7 @@ from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
-from review.models import Review, Rating
+from review.models import Review #, Rating
 from review.forms import ReviewForm
 from catalog.models import Sneaker
 
