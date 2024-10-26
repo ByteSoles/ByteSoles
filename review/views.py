@@ -111,15 +111,6 @@ def get_rating(request, slug):
 
     return HttpResponse(rating.rating)
 
-def update_rating(sneaker, score, status):
-    if status == 'add':
-        review_count = 1
-        new_score = score
-    elif status == 'edit':
-        review_count = 0
-
-
-
 def show_xml(request, slug):
     sneaker =get_object_or_404(Sneaker, slug=slug)
     data = Review.objects.filter(sneaker=sneaker)
