@@ -1,5 +1,5 @@
 import datetime
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
@@ -14,33 +14,54 @@ from review.models import Review
 from review.forms import ReviewForm
 from catalog.models import Sneaker
 
-def show_reviews(request):
-    return render(request, 'reviews.html')
+def show_reviews(request, sneaker_name):
+    sneaker = get_object_or_404(Sneaker, name=sneaker_name)
 
-def add_review(request, id):
-    form = ReviewForm(request.POST or None)
+    if request.user.is_authenticated:
+        user = request.user 
+    else:
+        user = None
 
-    if form.is_valid() and request.method == "POST":
-        mood_entry = form.save(commit=False)
-        mood_entry.user = request.user
-        mood_entry.save()
-        return redirect('homepage:show_homepage')
+    context = {
+        'sneaker_name': sneaker,
+        'image': sneaker.image,
+        'user': user
+    }    
+    return render(request, 'reviews.html', context)
 
-    context = {'form': form}
-    return render(request, 'add_review.html', context)
+@csrf_exempt
+@require_POST
+@login_required
+def add_review_ajax(request, sneaker_name):
+    sneaker = get_object_or_404(Sneaker, name=sneaker_name)
+    review_description = request.POST.get("review_description")
+    score = request.POST.get("score")
 
-def show_xml(request, sneaker_id):
-    data = Review.objects.filter(sneaker=sneaker_id)
+    new_review = Review(
+        user=request.user,
+        username=request.user.username,
+        sneaker=sneaker,
+        review_description=review_description, 
+        score=score,
+    )
+    new_review.save()
+
+    return HttpResponse(b"CREATED", status=201)
+
+def show_xml(request, sneaker_name):
+    sneaker =get_object_or_404(Sneaker, name=sneaker_name)
+    data = Review.objects.filter(sneaker=sneaker)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
-def show_json(request, sneaker_id):
-    data = Review.objects.filter(sneaker=sneaker_id)
+def show_json(request, sneaker_name):
+    sneaker =get_object_or_404(Sneaker, name=sneaker_name)
+    data = Review.objects.filter(sneaker=sneaker)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
-def show_xml_by_id(request, id):
-    data = Review.objects.filter(pk=id)
+def show_xml_by_id(request, review_id):
+    data = Review.objects.filter(pk=review_id)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
-def show_json_by_id(request, id):
-    data = Review.objects.filter(pk=id)
+def show_json_by_id(request, review_id):
+    data = Review.objects.filter(pk=review_id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")

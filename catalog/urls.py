@@ -7,7 +7,10 @@ urlpatterns = [
     path('', view_catalog, name='view_catalog'),
     path('view-json/', get_product_json, name='get_product_json'),
     path('get_filtered_products/', get_filtered_products, name='get_filtered_products'),
+<<<<<<< HEAD
     path('products/<slug:product_slug>/', show_product_by_slug, name='show_product_by_slug'),
 
     
+=======
+>>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71
 ]

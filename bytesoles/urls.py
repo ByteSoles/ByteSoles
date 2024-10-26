@@ -28,6 +28,10 @@ urlpatterns = [
     path('register/', login_views.register_view, name='register'),  # Tambahkan ini juga jika diperlukan
     path('', homepage_views.view_homepage, name='view_homepage'),  # Perhatikan name di sini
     path('catalog/', include('catalog.urls')),
+<<<<<<< HEAD
     path('detail_product/', include('detail_product.urls')),
     
+=======
+    path('review/', include('review.urls')),
+>>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71
 ]
