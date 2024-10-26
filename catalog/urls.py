@@ -8,6 +8,4 @@ urlpatterns = [
     path('view-json/', get_product_json, name='get_product_json'),
     path('get_filtered_products/', get_filtered_products, name='get_filtered_products'),
     path('products/<slug:product_slug>/', show_product_by_slug, name='show_product_by_slug'),
-
-    
 ]

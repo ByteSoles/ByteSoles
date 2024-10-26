@@ -12,5 +12,5 @@ urlpatterns = [
     path('catalog/', include('catalog.urls')),
     #path('catalog/products/<slug:product_slug>/', views.show_product_by_slug, name='sneaker_detail'),
     path('detail_product/', include('detail_product.urls')),
-    
+    path('review/', include('review.urls')),
 ]
