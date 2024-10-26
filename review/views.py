@@ -48,8 +48,57 @@ def add_review_ajax(request, sneaker_name):
 
     return HttpResponse(b"CREATED", status=201)
 
-def show_xml(request, sneaker_name):
-    sneaker =get_object_or_404(Sneaker, name=sneaker_name)
+@csrf_exempt
+@require_POST
+@login_required
+def edit_review_ajax(request, slug):
+    sneaker = get_object_or_404(Sneaker, slug=slug)
+    review_description = request.POST.get("review_description")
+    score = request.POST.get("score")
+
+    review = get_object_or_404(Review, user=request.user, sneaker=sneaker)
+    rating = get_object_or_404(Rating, sneaker=sneaker)
+    review.review_description = review_description
+
+    rating.total_score -= review.score
+    review.score = int(score)
+    rating.total_score += review.score
+    rating.rating = rating.total_score / rating.review_count
+
+    review.save()
+    rating.save()
+
+    return HttpResponse(b"UPDATED", status=201)
+
+@csrf_exempt
+@require_POST
+@login_required
+def delete_review(request, slug):
+    sneaker = get_object_or_404(Sneaker, slug=slug)
+    review = get_object_or_404(Review, user=request.user, sneaker=sneaker)
+    rating = get_object_or_404(Rating, sneaker=sneaker)
+
+    rating.total_score -= review.score
+    rating.review_count -= 1
+    rating.rating = rating.total_score / rating.review_count
+
+    review.delete()
+    rating.save()
+
+    return HttpResponse(b"DELETED", status=201)
+
+def get_rating(request, slug):
+    sneaker = get_object_or_404(Sneaker, slug=slug)
+
+    try:
+        rating = get_object_or_404(Rating, sneaker=sneaker)
+    except Http404:
+        return HttpResponse(0.0)
+
+    return HttpResponse(rating.rating)
+
+def show_xml(request, slug):
+    sneaker =get_object_or_404(Sneaker, slug=slug)
     data = Review.objects.filter(sneaker=sneaker)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
