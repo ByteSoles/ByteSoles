@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block content %}
+{% include "navbar.html" %}
+
 <div class="flex justify-center items-center h-screen w-screen bg-cover bg-center relative" style="background-image: url({% static 'img/tes.png' %});">
     <!-- Overlay for better text contrast -->
     <div class="absolute inset-0 bg-black opacity-60"></div>
