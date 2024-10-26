@@ -52,7 +52,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-     
+    
     $(document).ready(function() {
         // Fungsi untuk memperbarui kuantitas via AJAX
         $('.update-quantity-form input[name="quantity"]').on('change', function() {
@@ -248,9 +248,9 @@
                         </div>
 
                         <!-- Checkout Button -->
-                        <button type="submit" class="block w-full bg-black text-white text-center py-4 px-6 mt-8 rounded-lg font-bold hover:bg-gray-700 transition-all">
+                        <a href="{% url 'keranjang:checkout_page' %}" class="bg-black text-white font-semibold py-3 px-10 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 ease-in-out transform hover:scale-105">
                             Checkout
-                        </button>
+                        </a>
                     </form>
                 </div>
             </div>
