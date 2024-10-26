@@ -21,21 +21,19 @@ class SneakerManager(models.Manager):
     
 
 class Sneaker(models.Model):
-    
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     price = models.IntegerField()
     release_date = models.DateField()
     image = models.URLField()
-
+    slug = models.SlugField(max_length=255, unique=True)
 
     class Meta:
         verbose_name_plural = 'Sneaker'
         ordering = ['release_date']
 
-
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse("store:sneaker_detail", args=[self.slug])

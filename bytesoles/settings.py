@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'catalog',
     'keranjang',
     'homepage',
+    'detail_product',
+    'review',
 ]
 
 MIDDLEWARE = [
