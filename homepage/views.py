@@ -1,16 +1,16 @@
-from django.shortcuts import render
+import datetime
+from django.shortcuts import render, redirect, reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
+from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.utils.html import strip_tags
 
-<<<<<<< HEAD
-# Create your views here.
-def view_homepage(request):
-    context = {
-        'npm' : '2306123456',
-        'name': 'Pak Bepe',
-        'class': 'PBP E'
-    }
-
-    return render(request, "homepage.html", context)
-=======
 def show_homepage(request):
     return render(request, 'homepage.html')
 
@@ -48,4 +48,3 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('homepage:show_homepage'))
     response.delete_cookie('last_login')
     return response
->>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71

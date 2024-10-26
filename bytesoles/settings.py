@@ -38,15 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'catalog',
     'homepage',
-<<<<<<< HEAD
     'detail_product',
     'review',
-    'login_regis',
-=======
-    'catalog',
-    'review',
->>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71
 ]
 
 MIDDLEWARE = [
@@ -127,13 +122,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-DEBUG = True
-
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+if DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static'
+    ]
+else:
+    STATIC_ROOT = BASE_DIR / 'static'
 
 
 # Default primary key field type

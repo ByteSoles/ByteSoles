@@ -4,20 +4,9 @@ from django.contrib.auth.models import User
 from catalog.models import Sneaker
 import uuid
 
-<<<<<<< HEAD
-class Review(models.Model):
-=======
-class Rating(models.Model):
-    sneaker = models.OneToOneField(Sneaker, on_delete=models.CASCADE)
-    rating = models.DecimalField(default=0, max_digits=5, decimal_places=1)
-
-    def __str__(self):
-        return str(self.pk)
-
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=255)
->>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71
     sneaker = models.ForeignKey(Sneaker, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
     review_description = models.CharField(max_length=255)
