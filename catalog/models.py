@@ -27,6 +27,7 @@ class Sneaker(models.Model):
     price = models.IntegerField()
     release_date = models.DateField()
     image = models.URLField()
+    slug = models.SlugField(max_length=255, unique=True)
 
 
     class Meta:

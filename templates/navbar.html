@@ -1,0 +1,90 @@
+<nav class="bg-white shadow-lg fixed top-0 left-0 z-40 w-screen">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center h-[85px]">
+        <div class="flex-1">
+          <div class="flex items-center">
+            <a href="{% url 'homepage:show_homepage' %}" class="text-3xl font-bold text-left text-black">
+              ByteSoles
+            </a>
+          </div>
+        </div>
+        <div class="flex-1 h-full">
+          <div class="flex flex-col justify-end items-center h-full">
+            <ul class="hidden md:flex space-x-6 mb-2">
+              <li>
+                <a href="{% url 'homepage:show_homepage' %}" class="text-black text-[20px] hover:text-[#565656] font-bold font-mono transition duration-200">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'catalog:view_catalog' %}" class="text-black text-[20px] hover:text-[#565656] font-bold font-mono transition duration-200">
+                  Products
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="flex-1">
+          <div class="hidden md:flex items-center justify-end">
+            {% if user.is_authenticated %}
+              <a href="{% url 'homepage:logout' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
+                <i class="fa-solid fa-cart-shopping"></i>
+              </a>
+              <a href="{% url 'homepage:logout' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
+                <i class="fa-solid fa-user"></i>
+              </a>
+            {% else %}
+              <div class="flex flex-col items-center justify-center">
+                <form method="POST" action="">
+                  {% csrf_token %}
+                  <div class="flex justify-start space-x-2">
+                    <input id="username" name="username" type="text" required placeholder="Username" class="bg-[#ebedee] text-[15px] focus:outline-none focus:ring-1 focus:ring-black py-2 rounded-md p-2 w-[180px] h-[33px] transition duration-200">
+                    <input id="password" name="password" type="password" required placeholder="Password" class="bg-[#ebedee] text-[15px] focus:outline-none focus:ring-1 focus:ring-black py-2 rounded-md p-2 w-[180px] h-[33px] transition duration-200">
+                    <button type="submit" class="flex items-center justify-center bg-black hover:bg-[#303030] text-white font-bold py-2 px-4 rounded transition duration-200 mr-2 h-[33px]">
+                      Login
+                    </button>
+                  </div>
+                </form>
+                <a href="{% url 'homepage:register' %}" class="text-center text-black text-[11px] hover:text-[#565656] font-bold py-2 transition duration-200 h-0">
+                  Don't have an account yet? Register here
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="md:hidden flex items-center">
+          <button class="mobile-menu-button">
+            <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Mobile menu -->
+    <div class="mobile-menu hidden md:hidden  px-4 w-full md:max-w-full">
+      <div class="pt-2 pb-3 space-y-1 mx-auto">
+        {% if user.is_authenticated %}
+          <span class="block text-gray-200 px-3 py-2">Welcome, {{ user.username }}</span>
+          <a href="{% url 'homepage:logout' %}" class="block text-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+            Logout
+          </a>
+        {% else %}
+          <a href="{% url 'homepage:show_homepage' %}" class="block text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-200 mb-2">
+            Login
+          </a>
+          <a href="{% url 'homepage:register' %}" class="block text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-200">
+            Register
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    <script>
+      const btn = document.querySelector("button.mobile-menu-button");
+      const menu = document.querySelector(".mobile-menu");
+    
+      btn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+      });
+    </script>
+  </nav>
