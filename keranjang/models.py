@@ -1,4 +1,4 @@
-# models.py
+
 from django.db import models
 
 class Sneaker(models.Model):
@@ -13,15 +13,4 @@ class Sneaker(models.Model):
     def __str__(self):
         return self.name
 
-
-class PurchaseHistory(models.Model):
-    sneaker = models.ForeignKey('catalog.Sneaker', on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    purchase_date = models.DateTimeField(auto_now_add=True)
-
-    def total_price(self):
-        return self.quantity * self.sneaker.price
-
-    def __str__(self):
-        return f"{self.quantity} x {self.sneaker.name} purchased by {self.user.username}"
 
