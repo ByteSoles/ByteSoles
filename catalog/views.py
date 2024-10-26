@@ -39,9 +39,35 @@ def get_filtered_products(request):
 
 def show_product_by_slug(request, product_slug):
     product = get_object_or_404(Sneaker, slug=product_slug)
-    print("Product ID:", product.id)
-    print("Product Image URL:", product.image)
+
+    # Track recently viewed products in the session
+    recent_products = request.session.get('recently_viewed', [])
+
+    if product.id not in recent_products:
+        recent_products.append(product.id)
+        if len(recent_products) > 5:
+            recent_products.pop(0)  # Keep only the last 5 items
+
+    request.session['recently_viewed'] = recent_products
+
     context = {
         'product': product,
     }
-    return render(request, 'detail_product.html', context)  # Ensure the template path is correct
+    return render(request, "detail_product.html", context)
+
+def get_recently_viewed(request):
+    recent_ids = request.session.get('recently_viewed', [])
+    recent_products = Sneaker.objects.filter(id__in=recent_ids)
+    
+    data = [
+        {
+            'name': product.name,
+            'brand': product.brand,
+            'price': product.price,
+            'image': product.image,
+            'slug': product.slug,
+        }
+        for product in recent_products
+    ]
+    
+    return JsonResponse(data, safe=False)
