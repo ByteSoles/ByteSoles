@@ -15,10 +15,10 @@ class Rating(models.Model):
 
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255)
+    username = models.CharField(max_length=20)
     sneaker = models.ForeignKey(Sneaker, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
-    review_description = models.CharField(max_length=255)
+    review_description = models.CharField(max_length=500)
     score = models.IntegerField(default=0,
         validators=[
             MaxValueValidator(5),
