@@ -31,7 +31,7 @@ def view_keranjang(request):
         'item_added': item_added,
     })
 
-@login_required
+@login_required(login_url='login')
 def add_to_cart(request, item_id):
     sneaker = get_object_or_404(Sneaker, id=item_id)
     keranjang = request.session.get('keranjang', {})
@@ -46,6 +46,7 @@ def add_to_cart(request, item_id):
 
     return redirect('keranjang:view_keranjang')
 
+@login_required
 def remove_from_cart(request, item_id):
     keranjang = request.session.get('keranjang', {})
 
@@ -56,21 +57,31 @@ def remove_from_cart(request, item_id):
 
     return redirect('keranjang:view_keranjang')
 
-@login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import PurchaseHistory
+from catalog.models import Sneaker
+
+@login_required(login_url='login')
 def checkout(request):
     keranjang = request.session.get('keranjang', {})
-    if request.method == 'POST':
-        if not keranjang:
-            return redirect('keranjang:view_keranjang')
+    if not keranjang:
+        # Jika keranjang kosong, redirect ke halaman keranjang
+        return redirect('keranjang:view_keranjang')
 
+    if request.method == 'POST':
+        payment_method = request.POST.get('payment_method')
         for item_id, kuantitas in keranjang.items():
             sneaker = get_object_or_404(Sneaker, id=item_id)
             PurchaseHistory.objects.create(
                 user=request.user,
                 sneaker=sneaker,
-                quantity=kuantitas
+                quantity=kuantitas,
+                total_price=sneaker.price * kuantitas,
+                payment_method=payment_method
             )
 
+        # Kosongkan keranjang
         request.session['keranjang'] = {}
         return redirect('keranjang:payment_successful')
     else:
@@ -84,15 +95,15 @@ def checkout(request):
                 'total_harga': sneaker.price * kuantitas,
             })
             total_harga += sneaker.price * kuantitas
-        return render(request, 'keranjang/checkout.html', {
+        return render(request, 'keranjang/checkout_page.html', {
             'item_keranjang': item_keranjang,
             'total_harga': total_harga,
         })
 
-# @login_required
+@login_required(login_url='login')
 def payment_successful(request):
-    purchase_history = PurchaseHistory.objects.filter(user=request.user).order_by('-purchase_date')
-    return render(request, 'keranjang/payment_successful.html', {'purchase_history': purchase_history})
+    purchase_history = PurchaseHistory.objects.order_by('-purchase_date')
+    return render(request, 'keranjang/checkout_page.html', {'purchase_history': purchase_history})
 
 
 def update_quantity(request, item_id):

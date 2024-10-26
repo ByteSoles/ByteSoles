@@ -14,10 +14,7 @@ class Sneaker(models.Model):
         return self.name
 
 
-from django.contrib.auth.models import User
-
 class PurchaseHistory(models.Model):
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
     sneaker = models.ForeignKey('catalog.Sneaker', on_delete=models.CASCADE)
     quantity = models.IntegerField()
     purchase_date = models.DateTimeField(auto_now_add=True)
@@ -25,6 +22,6 @@ class PurchaseHistory(models.Model):
     def total_price(self):
         return self.quantity * self.sneaker.price
 
-    # def __str__(self):
-    #     return f"{self.quantity} x {self.sneaker.name} purchased by {self.user.username}"
+    def __str__(self):
+        return f"{self.quantity} x {self.sneaker.name} purchased by {self.user.username}"
 
