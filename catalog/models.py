@@ -19,7 +19,6 @@ class Category(models.Model):
 class SneakerManager(models.Manager):
     def get_queryset(self):
         return super(SneakerManager,self).get_queryset().filter(is_active= True)
-    
 
 class Sneaker(models.Model):
     
@@ -28,12 +27,11 @@ class Sneaker(models.Model):
     price = models.IntegerField()
     release_date = models.DateField()
     image = models.URLField()
-
+    slug = models.SlugField(max_length=255, unique=True)
 
     class Meta:
         verbose_name_plural = 'Sneaker'
         ordering = ['release_date']
-
 
     def __str__(self):
         return self.name

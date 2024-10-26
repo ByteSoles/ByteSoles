@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'homepage',
     'catalog',
+    'detail_product',
     'review',
 ]
 
