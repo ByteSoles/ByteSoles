@@ -1,10 +1,11 @@
+{% load static %}
 <nav class="bg-white shadow-lg fixed top-0 left-0 z-40 w-screen">
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center h-[80px]">
       <div class="flex-1">
         <div class="flex items-center">
           <a href="{% url 'homepage:show_homepage' %}" class="text-3xl font-bold text-left text-black">
-            ByteSoles
+            <img src="{% static 'image/logo.png' %}" alt="ByteSoles Logo" class="h-[70px] w-auto mr-2">
           </a>
         </div>
       </div>
