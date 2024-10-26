@@ -1,0 +1,14 @@
+{% load static %}
+{% now "Y" as current_year %}
+
+<footer class="bg-black text-white py-4">
+    <div class="mx-auto text-center">
+        <p class="mb-2">&copy; {{ current_year }} Byte Soles. All rights reserved.</p>
+        <div class="flex justify-center space-x-4">
+            <a href="#" class="hover:text-gray-400 transition duration-200">Catalog</a>
+            <a href="#" class="hover:text-gray-400 transition duration-200">Review</a>
+            <a href="#" class="hover:text-gray-400 transition duration-200">Cart</a>
+            <a href="#" class="hover:text-gray-400 transition duration-200">Profile</a>
+        </div>
+    </div>
+</footer>

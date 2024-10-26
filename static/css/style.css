@@ -1,0 +1,16 @@
+/* styles.css */
+
+footer {
+    background-color: black;
+    color: white;
+    padding: 1rem 0;  /* Vertical padding */
+}
+
+footer a {
+    color: white;  /* Link color */
+    transition: color 0.2s;  /* Smooth color transition on hover */
+}
+
+footer a:hover {
+    color: #A9A9A9;  /* Lighter gray color on hover */
+}
