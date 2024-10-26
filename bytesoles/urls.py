@@ -12,4 +12,5 @@ urlpatterns = [
     path('keranjang/', include('keranjang.urls', namespace='keranjang')),
 
     
+    path('review/', include('review.urls')),
 ]

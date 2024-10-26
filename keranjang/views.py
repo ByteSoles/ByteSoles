@@ -31,7 +31,7 @@ def view_keranjang(request):
         'item_added': item_added,
     })
 
-
+@login_required
 def add_to_cart(request, item_id):
     sneaker = get_object_or_404(Sneaker, id=item_id)
     keranjang = request.session.get('keranjang', {})
@@ -89,7 +89,7 @@ def checkout(request):
             'total_harga': total_harga,
         })
 
-@login_required
+# @login_required
 def payment_successful(request):
     purchase_history = PurchaseHistory.objects.filter(user=request.user).order_by('-purchase_date')
     return render(request, 'keranjang/payment_successful.html', {'purchase_history': purchase_history})
