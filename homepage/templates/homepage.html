@@ -5,8 +5,47 @@
 <title>ByteSoles</title>
 {% endblock meta %}
 
+
 {% block content %}
 {% include 'navbar.html' %}
+
+<!-- Swiper Section with white background -->
+<div class="bg-white overflow-x-hidden px-4 md:px-8 pb-8 pt-[100px] z-30 min-h-screen flex flex-col items-center justify-center">
+    <div class="swiper mySwiper w-full h-[90vh]">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <img src="https://sombrero.jdsports.id/media/wysiwyg/ShopByCategory/Men/NB_M1000_1920x840.jpg" class="w-auto h-full object-cover" alt="First Slide">
+            </div>
+            <div class="swiper-slide">
+                <img src="https://storage.googleapis.com/eraspacelink/pmp/production/banners/images/l6MEaLt7lkWGFYs46MfOHbUxHlCE237KqgtWTY4T.jpg" class="w-auto h-full object-cover" alt="Second Slide">
+            </div>
+            <div class="swiper-slide">
+                <img src="https://sombrero.jdsports.id/media/wysiwyg/ShopByCategory/Men/Puma_Palermo_1920x840.jpg" class="w-auto h-full object-cover" alt="Third Slide">
+            </div>
+        </div>
+        <!-- Add navigation buttons if you want -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+</div>
+
+<!-- New content for two-column section with cream background -->
+<div class="bg-[#f6f4ee] flex flex-col lg:flex-row items-start justify-between px-8 py-16 max-w-7xl mx-auto">
+    <!-- Left Column -->
+    <div class="lg:w-1/2 pr-8">
+        <h2 class="text-4xl font-bold mb-4">Stories, style, and sporting goods at ByteSoles, since 1949</h2>
+        <p class="text-lg leading-relaxed">
+            Through sports, we have the power to change lives. ByteSoles keeps you in step with the sneaker world. Our platform is designed to help you stay inspired, get moving, and discover sneakers that elevate your game. ByteSoles is home to the hottest releases and classic sneakers for every occasion.
+        </p>
+    </div>
+    
+    <!-- Right Column -->
+    <div class="lg:w-1/2 pl-8 mt-8 lg:mt-0">
+        <h2 class="text-4xl font-bold mb-4">Sneakers for every adventure</h2>
+        <p class="text-lg leading-relaxed">
+            Whether you're working out, hitting the streets, or just relaxing, ByteSoles has the perfect pair for you. We bring you the best in sneaker technology and design, with everything from high-performance footwear to casual kicks. ByteSoles is your one-stop destination for all things sneakers.
+        </p>
+    </div>
 
 <!-- Swiper Section with white background -->
 <div class="bg-white overflow-x-hidden px-4 md:px-8 pb-8 pt-[100px] z-30 min-h-screen flex flex-col items-center justify-center">
@@ -61,5 +100,5 @@
   });
 </script>
 
-
 {% endblock content %}
+
