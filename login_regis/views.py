@@ -43,4 +43,4 @@ def register_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('home')  # Ganti 'home' dengan nama URL halaman utama Anda
+    return redirect('home') 
