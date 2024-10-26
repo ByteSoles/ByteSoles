@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
   <head>
     {% block meta %}
     <meta charset="UTF-8" />
@@ -8,10 +8,66 @@
     {% endblock meta %}
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
+    <title>{% block title %}Nama Situs Anda{% endblock %}</title>
+    <style>
+        /* Tambahkan CSS sesuai kebutuhan */
+        .profile-icon {
+            float: right;
+            cursor: pointer;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
   </head>
 
   <body>
-    {% block content %} 
-    {% endblock content %}
+    <header>
+        <!-- Tambahkan navigasi atau elemen header lainnya di sini -->
+        <div class="profile-icon" onclick="toggleDropdown()">👤</div>
+        <div id="profileDropdown" class="dropdown">
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <!-- Tambahkan footer di sini -->
+    </footer>
+
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("profileDropdown");
+            if (dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            } else {
+                dropdown.style.display = "block";
+            }
+        }
+    </script>
   </body>
 </html>

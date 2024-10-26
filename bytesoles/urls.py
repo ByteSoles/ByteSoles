@@ -16,14 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from homepage import views as homepage_views  # Sesuaikan dengan struktur proyek Anda
+from login_regis import views as login_views  # Tambahkan ini
 
 
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path('', include('homepage.urls')), 
+    path('accounts/', include('login_regis.urls')),
+    path('login/', login_views.login_view, name='login'),  # Tambahkan ini
+    path('register/', login_views.register_view, name='register'),  # Tambahkan ini juga jika diperlukan
+    path('', homepage_views.view_homepage, name='view_homepage'),  # Perhatikan name di sini
     path('catalog/', include('catalog.urls')),
-    #path('catalog/products/<slug:product_slug>/', views.show_product_by_slug, name='sneaker_detail'),
     path('detail_product/', include('detail_product.urls')),
     
 ]

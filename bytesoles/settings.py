@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'homepage',
     'detail_product',
     'review',
+    'login_regis',
 ]
 
 MIDDLEWARE = [
