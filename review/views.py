@@ -36,7 +36,7 @@ def add_review_ajax(request, slug):
     review_description = request.POST.get("review_description")
     score = request.POST.get("score")
 
-    new_review = Review(
+    new_review = Review (
         user = request.user,
         username = request.user.username,
         sneaker = sneaker,

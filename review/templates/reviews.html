@@ -15,12 +15,12 @@
                     <img src="{{ sneaker.image }}" alt="{{ sneaker.name }}" class="h-full object-cover rounded-lg">
                     <h2 class="text-[20px] font-semibold">{{ sneaker.name }}</h2>
                 </div>
-                <div class="flex flex-col items-center justify-center [width:38%]">
+                <div class="flex flex-col items-center justify-center [width:40%]">
                     <div class="flex">
-                        <span class="fa fa-star mb-10 text-[#fcd303] text-3xl"></span>
+                        <span class="fa fa-star mb-10 text-[#fcd303] text-3xl mr-2"></span>
                         <h2 id="rating" class="text-3xl"></h1>
                     </div>
-                    <button id="addReviewBtn" data-modal-target="crudModal" data-modal-toggle="crudModal" class="bg-black hover:bg-[#303030] w-full text-white font-bold py-2 px-4 mb-2 rounded-lg transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
+                    <button id="addReviewBtn" data-modal-target="crudModal" data-modal-toggle="crudModal" class="bg-black [width:95%] hover:bg-[#303030] w-full text-white font-bold py-2 px-4 mb-2 rounded-lg transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
                         Add Review  
                     </button>
                     <h1 id="letsReview" class="text-center text-gray-500">Give your review, help others make informed purchasing decisions!</h1>
@@ -79,6 +79,17 @@
             </div>
         </div>
     </div>
+    <!-- Popup Modal -->
+    <div id="popup" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg space-y-4 text-center">
+          <h2 class="text-2xl font-semibold">Warning</h2>
+          <p class="text-gray-700">You have to login to give a review.</p>
+          <button id="closePopup" 
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+            Close
+          </button>
+        </div>
+      </div>
     <style>
         .checked {
             color: #fcd303;
@@ -195,31 +206,48 @@
 
             document.getElementById("review_cards").className = classNameString;
             document.getElementById("review_cards").innerHTML = htmlString;
-            document.getElementById("rating").innerText = `/ ${rating}`;
+            document.getElementById("rating").innerText = `${rating}`;
         }
         refreshReviews();
 
         async function checkUserReview() {
-            const reviews = await getReviews();
             const addReviewBtn = document.getElementById("addReviewBtn");
-            const hasReviewed = reviews.some(review =>
-                String(review.fields.user) === '{{ user.id }}'
-            );
-                        
-            if (hasReviewed) {
-                addReviewBtn.innerText = 'Edit Your Review'
-                addReviewBtn.onclick = editModal;
-                document.getElementById('letsReview').innerText = 'We appreciate your review!'
-                document.getElementById("submitReview").onclick = editReview
+            const letsReview = document.getElementById('letsReview');
+            const submitReview = document.getElementById("submitReview");
+            const userLoggedIn = isUserLoggedIn();
+
+            if (!userLoggedIn){
+                addReviewBtn.classList.add("hidden");
+                console.log('pass')
+                letsReview.innerText = 'Take a moment to look around and see what others think about this sneaker. Reading their reviews can help you make the perfect choice! (Login to give your own review)'
             }
             else {
-                addReviewBtn.innerText = 'Add Review'
-                addReviewBtn.onclick = showModal;
-                document.getElementById('letsReview').innerText = 'Give your review, help others make informed purchasing decisions!'
-                document.getElementById("submitReview").onclick = addReview
+                addReviewBtn.classList.remove("hidden");
+
+                const reviews = await getReviews();
+                const hasReviewed = reviews.some(review =>
+                    String(review.fields.user) === '{{ user.id }}'
+                );
+                            
+                if (hasReviewed) {
+                    addReviewBtn.innerText = 'Edit Your Review'
+                    addReviewBtn.onclick = editModal;
+                    letsReview.innerText = 'We appreciate your review!'
+                    submitReview.onclick = editReview
+                }
+                else {
+                    addReviewBtn.innerText = 'Add Review'
+                    addReviewBtn.onclick = showModal;
+                    letsReview.innerText = 'Give your review, help others make informed purchasing decisions!'
+                    submitReview.onclick = addReview
+                }
             }
         }
         checkUserReview();
+
+        function isUserLoggedIn() {
+            return '{{ user|default:"null" }}' !== 'null';
+        }
 
         const stars = document.querySelectorAll('.stars-btn');
 
