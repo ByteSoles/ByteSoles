@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from catalog.models import Sneaker
 from django.contrib import messages
 
+
 def view_keranjang(request):
     keranjang = request.session.get('keranjang', {})
     item_keranjang = []
@@ -52,6 +53,7 @@ def remove_from_cart(request, item_id):
 
     return redirect('keranjang:view_keranjang')
 
+
 @login_required(login_url='login')
 def checkout(request):
     keranjang = request.session.get('keranjang', {})
@@ -59,7 +61,8 @@ def checkout(request):
         return redirect('keranjang:view_keranjang')
 
     if request.method == 'POST':
-        request.session['keranjang'] = {}
+        # Proses checkout
+        # ...
         return redirect('keranjang:payment_successful')
     else:
         item_keranjang = []
@@ -77,11 +80,10 @@ def checkout(request):
             'total_harga': total_harga,
         })
 
-
 @login_required(login_url='login')
 def payment_successful(request):
     # Tampilkan halaman konfirmasi tanpa riwayat pembelian
-    return render(request, 'keranjang/checkout.html')
+    return render(request, 'checkout.html')
 
 def update_quantity(request, item_id):
     if request.method == 'POST':
