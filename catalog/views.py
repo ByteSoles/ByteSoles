@@ -50,6 +50,17 @@ def show_product_by_slug(request, product_slug):
 
     request.session['recently_viewed'] = recent_products
 
+
+    # Track recently viewed products in the session
+    recent_products = request.session.get('recently_viewed', [])
+
+    if product.id not in recent_products:
+        recent_products.append(product.id)
+        if len(recent_products) > 5:
+            recent_products.pop(0)  # Keep only the last 5 items
+
+    request.session['recently_viewed'] = recent_products
+
     context = {
         'product': product,
     }
