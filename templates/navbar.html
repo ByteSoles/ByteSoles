@@ -31,12 +31,12 @@
           <a href="{% url 'wishlist:wishlist' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
             <i class="fa-solid fa-heart"></i>
           </a>
-            <a href="{% url 'keranjang:view_keranjang' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
-              <i class="fa-solid fa-cart-shopping"></i>
-            </a>
-            <a href="{% url 'homepage:logout' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
-              <i class="fa-solid fa-user"></i>
-            </a>
+          <a href="{% url 'keranjang:view_keranjang' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </a>
+          <a href="{% url 'user_profile:profile' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
+            <i class="fa-solid fa-user"></i>
+          </a>
           {% else %}
             <div class="flex flex-col items-center justify-center">
               <form method="POST" action="{% url 'homepage:login' %}">
