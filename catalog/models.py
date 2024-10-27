@@ -21,7 +21,6 @@ class SneakerManager(models.Manager):
         return super(SneakerManager,self).get_queryset().filter(is_active= True)
 
 class Sneaker(models.Model):
-    
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     price = models.IntegerField()
@@ -35,6 +34,6 @@ class Sneaker(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse("store:sneaker_detail", args=[self.slug])
