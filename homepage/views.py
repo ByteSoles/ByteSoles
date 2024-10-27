@@ -1,15 +1,16 @@
 import datetime
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
+from keranjang.models import UserCart
 
 def show_homepage(request):
     return render(request, 'homepage.html')
@@ -20,8 +21,15 @@ def register(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
             messages.success(request, 'Your account has been successfully created!')
+
+            cart = UserCart (
+                user = user,
+                total_items = 0,
+            )
+            cart.save()
+
             return redirect('homepage:show_homepage')
     context = {'form':form}
     return render(request, 'register.html', context)
