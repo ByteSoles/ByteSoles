@@ -11,7 +11,7 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
-# Disconnect existing signals if they exist
+
 for receiver in post_save.receivers:
     if receiver[0][0].__name__ in ['create_user_profile', 'save_user_profile']:
         post_save.disconnect(receiver=receiver[0][0], sender=User)
