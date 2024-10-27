@@ -78,15 +78,38 @@ a:hover .arrow-icon {
         </a>
 
         <!-- Wishlist Box -->
-        <a href="#" class="bg-black border border-white p-6 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+        {% if user.is_authenticated %}
+        <a href="{% url 'wishlist:wishlist' %}" class="bg-black border border-white p-6 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
             <h3 class="text-2xl font-semibold mb-2">Wishlist</h3>
             <p class="text-lg text-center">Save your favorite sneakers for later.</p>
             <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
             </svg>
         </a>
+        {% else %}
+            <a href="#" onclick="showLoginPopup()" class="bg-black border border-white p-6 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+                <h3 class="text-2xl font-semibold mb-2">Wishlist</h3>
+                <p class="text-lg text-center">Save your favorite sneakers for later.</p>
+                <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+                </svg>
+        </a>
+        {% endif %}
+
+        <div id="loginModal" class="fixed inset-0 items-center justify-center bg-black bg-opacity-50 hidden z-50">
+
+            <div class="bg-white rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 text-black">Harus Login</h2>
+                <p class="mb-4 text-black">Anda harus login untuk menambahkan item ke keranjang.</p>
+                <div class="flex justify-end">
+                    <a href="{% url 'homepage:show_homepage' %}?next={{ request.path }}" class="bg-black text-white px-4 py-2 rounded mr-2">Login</a>
+                    <button onclick="closeLoginModal()" class="bg-red-500 text-white px-4 py-2 rounded">Tutup</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Cart Box -->
+        {% if user.is_authenticated %}
         <a href="{% url 'keranjang:view_keranjang' %}" class="bg-black border border-white p-6 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
             <h3 class="text-2xl font-semibold mb-2">Cart</h3>
             <p class="text-lg text-center">Manage your selected items and checkout.</p>
@@ -94,6 +117,15 @@ a:hover .arrow-icon {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
             </svg>
         </a>
+        {% else %}
+        <a href="#" onclick="showLoginPopup()" class="bg-black border border-white p-6 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+            <h3 class="text-2xl font-semibold mb-2">Wishlist</h3>
+            <p class="text-lg text-center">Save your favorite sneakers for later.</p>
+            <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+            </svg>
+    </a>
+    {% endif %}
     </div>
 </div>
 
@@ -110,6 +142,14 @@ a:hover .arrow-icon {
       prevEl: '.swiper-button-prev',
     },
   });
+
+  function showLoginPopup() {
+        document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
 </script>
 {% include 'footer.html' %}
 {% endblock content %}

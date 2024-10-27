@@ -32,3 +32,7 @@ a {
 a:hover {
     transform: scale(1.05) translateY(-5px); /* Scale up and move up slightly */
 }
+
+.hidden {
+    display: none; /* Ensure this hides the modal */
+}
