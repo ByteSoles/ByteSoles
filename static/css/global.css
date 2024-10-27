@@ -1,0 +1,34 @@
+/* styles.css */
+
+footer {
+    background-color: black;
+    color: white;
+    padding: 1rem 0;  /* Vertical padding */
+}
+
+footer a {
+    color: white;  /* Link color */
+    transition: color 0.2s;  /* Smooth color transition on hover */
+}
+
+footer a:hover {
+    color: #A9A9A9;  /* Lighter gray color on hover */
+}
+
+.arrow-icon {
+    transition: transform 0.3s; /* Smooth transition for transform property */
+}
+
+a:hover .arrow-icon {
+    transform: translateX(5px) rotate(360deg); /* Move arrow to the right */
+    transition: transform 0.3s ease; /* Smooth transition */
+    color: white; /* Change color on hover (if applicable) */
+}
+
+a {
+    transition: transform 0.3s ease; /* Smooth transition for scaling */
+}
+
+a:hover {
+    transform: scale(1.05) translateY(-5px); /* Scale up and move up slightly */
+}
