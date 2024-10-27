@@ -1,5 +1,8 @@
 # models.py
 from django.db import models
+from django.contrib.auth.models import User
+from catalog.models import Sneaker  # Pastikan Sneaker diimpor dari app catalog
+
 
 class Sneaker(models.Model):
     name = models.CharField(max_length=255)
@@ -13,9 +16,9 @@ class Sneaker(models.Model):
     def __str__(self):
         return self.name
 
-
 class PurchaseHistory(models.Model):
-    sneaker = models.ForeignKey('catalog.Sneaker', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    sneaker = models.ForeignKey(Sneaker, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     purchase_date = models.DateTimeField(auto_now_add=True)
 
@@ -24,4 +27,3 @@ class PurchaseHistory(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.sneaker.name} purchased by {self.user.username}"
-

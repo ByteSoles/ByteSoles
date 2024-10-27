@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'detail_product',
     'homepage',
     'review',
+    'wishlist',
+    'user_profile',
 ]
 
 MIDDLEWARE = [
@@ -123,13 +125,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-DEBUG = True
-
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+if DEBUG:
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static'
+    ]
+else:
+    STATIC_ROOT = BASE_DIR / 'static'
 
 
 # Default primary key field type

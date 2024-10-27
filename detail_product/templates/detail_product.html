@@ -5,7 +5,10 @@
 
 
 
-<div class="container mx-auto p-4">
+   
+{% include 'navbar.html' %}
+<div class="container mx-auto p-4 pt-[100px] z-20">
+   
     <div class="bg-white shadow-2xl rounded-lg p-8 flex flex-col md:flex-row"> <!-- Increased shadow -->
         <!-- Product Image -->
         <div class="flex-shrink-0 w-full md:w-1/2">
@@ -20,7 +23,7 @@
 
             <!-- Description -->
             <div class="text-gray-700 leading-relaxed mb-6">
-                <p>This is a description of the product. It gives more details about the features and benefits.</p>
+                <p>Release Date: {{ product.release_date}}</p>
             </div>
 
             <!-- Shoe Size Dropdown -->
@@ -45,7 +48,7 @@
             </div>
 
             <!-- Add to Cart Button with SVG -->
-            <div class="mt-4">
+            <div class="mt-4"> 
                 {% if user.is_authenticated %}
                     <a href="{% url 'keranjang:add_to_cart' product.id %}" class="flex items-center justify-center w-full h-12 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-200">
                         <!-- SVG Cart Icon -->
@@ -65,7 +68,8 @@
                 {% endif %}
             </div>
 
-            <div id="loginModal" class="fixed inset-0 items-center justify-center bg-black bg-opacity-50 hidden">
+            <div id="loginModal" class="fixed inset-0 items-center justify-center bg-black bg-opacity-50 hidden z-50">
+
             <div class="bg-white rounded-lg p-6">
                 <h2 class="text-xl font-bold mb-4">Harus Login</h2>
                 <p class="mb-4">Anda harus login untuk menambahkan item ke keranjang.</p>
@@ -76,21 +80,52 @@
             </div>
         </div>
 
-            <div class="mt-4">
-                <a href="#" class="flex items-center justify-center w-full h-12 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-200">
-                    <!-- SVG Wishlist Icon -->
-                    Add to Wishlist
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Love" class="w-6 h-6 ml-2 fill-current">
-                        <path fill="#fcfbfb" d="M4.379 12.274A4.841 4.841 0 0 1 3 8.89C3 6.189 5.216 4 7.95 4c1.674 0 3.154.82 4.05 2.077A4.962 4.962 0 0 1 16.05 4C18.784 4 21 6.189 21 8.889a4.845 4.845 0 0 1-1.507 3.512L12 20l-7.621-7.726Z" class="fill-current"></path>
-                    </svg>
-                </a>
-            </div>
+        <div class="mt-4">
+            {% if user.is_authenticated %}
+            <a href="{% url 'wishlist:add_to_wishlist' product.id %}" class="flex items-center justify-center w-full h-12 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-200">
+                Tambahkan ke Wishlist
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Love" class="w-6 h-6 ml-2 fill-current">
+                    <path fill="#fcfbfb" d="M4.379 12.274A4.841 4.841 0 0 1 3 8.89C3 6.189 5.216 4 7.95 4c1.674 0 3.154.82 4.05 2.077A4.962 4.962 0 0 1 16.05 4C18.784 4 21 6.189 21 8.889a4.845 4.845 0 0 1-1.507 3.512L12 20l-7.621-7.726Z" class="fill-current"></path>
+                </svg>
+            </a>
+            {% else %}
+            <a href="#" onclick="showLoginPopup()" class="flex items-center justify-center w-full h-12 bg-black text-white font-semibold rounded-lg">
+                Tambahkan ke Wishlist
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Love" class="w-6 h-6 ml-2 fill-current">
+                    <path fill="#fcfbfb" d="M4.379 12.274A4.841 4.841 0 0 1 3 8.89C3 6.189 5.216 4 7.95 4c1.674 0 3.154.82 4.05 2.077A4.962 4.962 0 0 1 16.05 4C18.784 4 21 6.189 21 8.889a4.845 4.845 0 0 1-1.507 3.512L12 20l-7.621-7.726Z" class="fill-current"></path>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+        </div>
         </div>
     </div>
-
-
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    async function loadRecentlyViewedProducts() {
+    const recentlyViewedSlugs = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+    if (recentlyViewedSlugs.length === 0) return;
+
+    // Fetch product details for all slugs in FIFO order
+    const response = await fetch(`/catalog/recently_viewed?slugs=${recentlyViewedSlugs.join(",")}`);
+    const products = await response.json();
+
+    const container = document.getElementById('recently-viewed-products');
+    container.innerHTML = products.map(product => `
+        <a href="${product.url}" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
+            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover mb-4">
+            <h3 class="text-black font-bold text-lg">${product.name}</h3>
+            <p class="text-gray-500">${product.brand}</p>
+            <p class="text-black font-semibold text-lg">$${product.price}</p>
+        </a>
+    `).join("");
+}
+
+// Load recently viewed products on page load
+window.addEventListener('DOMContentLoaded', loadRecentlyViewedProducts);
+
     function showLoginPopup() {
         document.getElementById('loginModal').classList.remove('hidden');
     }
@@ -98,7 +133,121 @@
     function closeLoginModal() {
         document.getElementById('loginModal').classList.add('hidden');
     }
+    function addRecentlyViewedProduct(slug) {
+    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+    // Check if the product is already in the list
+    if (!recentlyViewed.includes(slug)) {
+        recentlyViewed.push(slug);  // Add to the end of the array for FIFO
+        localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+    }
+}
+
+
+
+// Call this function when the product detail page is loaded
+addRecentlyViewedProduct('{{ product.slug }}');
 </script>
 
+<div class="container mx-auto p-4 mt-10">
+    <h2 class="text-2xl font-semibold mb-4">Recently Viewed</h2>
+    <div id="recently-viewed-products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Recently viewed products will be dynamically loaded here -->
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    async function loadRecentlyViewedProducts() {
+    const recentlyViewedSlugs = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+    if (recentlyViewedSlugs.length === 0) return;
+
+    // Fetch product details for all slugs in FIFO order
+    const response = await fetch(`/catalog/recently_viewed?slugs=${recentlyViewedSlugs.join(",")}`);
+    const products = await response.json();
+
+    const container = document.getElementById('recently-viewed-products');
+    container.innerHTML = products.map(product => `
+        <a href="${product.url}" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
+            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover mb-4">
+            <h3 class="text-black font-bold text-lg">${product.name}</h3>
+            <p class="text-gray-500">${product.brand}</p>
+            <p class="text-black font-semibold text-lg">$${product.price}</p>
+        </a>
+    `).join("");
+}
+
+// Load recently viewed products on page load
+window.addEventListener('DOMContentLoaded', loadRecentlyViewedProducts);
+
+    function showLoginPopup() {
+        document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
+    function addRecentlyViewedProduct(slug) {
+    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+    // Check if the product is already in the list
+    if (!recentlyViewed.includes(slug)) {
+        recentlyViewed.push(slug);  // Add to the end of the array for FIFO
+        localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+    }
+}
+
+
+
+// Call this function when the product detail page is loaded
+addRecentlyViewedProduct('{{ product.slug }}');
+</script>
+
+{% include 'footer.html' %}
 {% endblock content %}
 
+
+{% block extra_js %}
+<script>
+document.getElementById('add-to-wishlist').addEventListener('click', function() {
+    const productId = this.dataset.productId;
+    fetch(`/wishlist/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);  // Tampilkan pesan sukses
+            window.location.href = "{% url 'wishlist:wishlist' %}";  // Alihkan ke halaman wishlist
+        } else {
+            alert('Gagal menambahkan produk ke wishlist. Silakan coba lagi.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan. Silakan coba lagi.');
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+
+{% endblock %}

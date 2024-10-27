@@ -1,35 +1,173 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block meta %}
 <title>ByteSoles</title>
-{% endblock meta %}
+
+<style>
+    .arrow-icon {
+        transition: transform 0.3s; /* Smooth transition for transform property */
+        transform: rotate(180deg); /* Rotate the arrow icon to face left */
+    }
+
+    a:hover .arrow-icon {
+        transform: translateX(5px) rotate(180deg); /* Move arrow to the right */
+        transition: transform 0.3s ease; /* Smooth transition */
+        color: white; /* Change color on hover (if applicable) */
+
+    }
+    .swiper-slide img {
+        width: 100%;
+        height: auto;
+    }
+
+    
+    @media (max-width: 768px) {
+        .swiper {
+            height: 50vh; /* Adjust swiper height for mobile */
+        }
+        .swiper-slide img {
+            object-fit: cover; /* Ensure images maintain aspect ratio */
+        }
+
+        /* Adjust text sizes and padding for mobile */
+        h2 {
+            font-size: 1.75rem;
+        }
+        p {
+            font-size: 1rem;
+        }
+        .container {
+            padding: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .swiper {
+            height: 40vh; /* Smaller height for smaller devices */
+        }
+        h2 {
+            font-size: 1.5rem;
+        }
+        p {
+            font-size: 0.875rem;
+        }
+    }
+</style>
 
 {% block content %}
 {% include 'navbar.html' %}
+<body>
+    <div class="flex flex-col min-h-screen">
+
 
 <!-- Swiper Section with white background -->
+<div></div>
 <div class="bg-white overflow-x-hidden px-4 md:px-8 pb-8 pt-[100px] z-30 min-h-screen flex flex-col items-center justify-center">
     <div class="swiper mySwiper w-full h-[90vh]">
         <div class="swiper-wrapper">
             <div class="swiper-slide">
-                <img src="https://sombrero.jdsports.id/media/wysiwyg/ShopByCategory/Men/NB_M1000_1920x840.jpg" class="w-auto h-full object-cover" alt="First Slide">
+                <img src="https://sombrero.jdsports.id/media/wysiwyg/ShopByCategory/Men/NB_M1000_1920x840.jpg" class="w-full h-auto object-cover" alt="First Slide">
             </div>
             <div class="swiper-slide">
-                <img src="https://storage.googleapis.com/eraspacelink/pmp/production/banners/images/l6MEaLt7lkWGFYs46MfOHbUxHlCE237KqgtWTY4T.jpg" class="w-auto h-full object-cover" alt="Second Slide">
+                <img src="https://storage.googleapis.com/eraspacelink/pmp/production/banners/images/l6MEaLt7lkWGFYs46MfOHbUxHlCE237KqgtWTY4T.jpg" class="w-full h-auto object-cover" alt="Second Slide">
             </div>
             <div class="swiper-slide">
-                <img src="https://sombrero.jdsports.id/media/wysiwyg/ShopByCategory/Men/Puma_Palermo_1920x840.jpg" class="w-auto h-full object-cover" alt="Third Slide">
+                <img src="https://sombrero.jdsports.id/media/wysiwyg/ShopByCategory/Men/Puma_Palermo_1920x840.jpg" class="w-full h-auto object-cover" alt="Third Slide">
             </div>
         </div>
         <!-- Add navigation buttons if you want -->
-        <div class="swiper-button-next"></div>
-        <div class="swiper-button-prev"></div>
+        <div class="swiper-scrollbar"></div>
+    </div>
+</div>
+
+
+
+<div class="bg-white text-white px-8 py-16 max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6 text-center">Explore Our Features</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+        <!-- Catalog Box -->
+        <a href="{% url 'catalog:view_catalog' %}" class="relative bg-[url('{% static 'image/backgroundbox.jpg' %}')] bg-cover bg-center text-white border border-white p-8 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+            <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+            <img src="{% static 'image/logocatalog.png' %}" alt="Catalog Logo" class="h-[110px] w-auto mr-2 filter invert brightness-0 relative z-10">
+            <h3 class="text-2xl font-semibold mb-2 relative z-10">Catalog</h3>
+            <p class="text-lg text-center relative z-10">Browse our extensive collection of sneakers.</p>
+            <div class="flex items-center mt-4 relative z-10">
+                <svg class="arrow-icon w-6 h-6 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+                </svg>
+            </div>
+        </a>
+        
+
+        <!-- Wishlist Box -->
+        {% if user.is_authenticated %}
+        <a href="{% url 'wishlist:wishlist' %}" class="relative bg-[url('{% static 'image/backgroundbox.jpg' %}')] bg-cover bg-center text-white border border-white p-8 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+            <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+            <img src="{% static 'image/logowishlist.png' %}" alt="Wishlist Logo" class="h-[110px] w-auto mr-2 filter invert brightness-0 relative z-10">
+            <h3 class="text-2xl font-semibold mb-2 relative z-10">Wishlist</h3>
+            <p class="text-lg text-center relative z-10">Save your favorite sneakers for later.</p>
+            <div class="flex items-center mt-4 relative z-10">
+                <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+                </svg>
+            </div>
+        </a>
+        {% else %}
+            <a href="#" onclick="showLoginPopup()" class="relative bg-[url('{% static 'image/backgroundbox.jpg' %}')] bg-cover bg-center text-white border border-white p-8 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+                <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+                <img src="{% static 'image/logowishlist.png' %}" alt="Wishlist Logo" class="h-[110px] w-auto mr-2 filter invert brightness-0 relative z-10">
+                <h3 class="text-2xl font-semibold mb-2 relative z-10">Wishlist</h3>
+                <p class="text-lg text-center relative z-10">Save your favorite sneakers for later.</p>
+                <div class="flex items-center mt-4 relative z-10">
+                    <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+                    </svg>
+                </div>
+        </a>
+        {% endif %}
+
+        <div id="loginModal" class="fixed inset-0 items-center justify-center bg-black bg-opacity-50 hidden z-50">
+            <div class="bg-white rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-4 text-black">Harus Login</h2>
+                <p class="mb-4 text-black">Anda harus login untuk menambahkan item ke keranjang.</p>
+                <div class="flex justify-end">
+                    <a href="{% url 'homepage:show_homepage' %}?next={{ request.path }}" class="bg-black text-white px-4 py-2 rounded mr-2">Login</a>
+                    <button onclick="closeLoginModal()" class="bg-red-500 text-white px-4 py-2 rounded">Tutup</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Box -->
+        {% if user.is_authenticated %}
+        <a href="{% url 'keranjang:view_keranjang' %}" class="relative bg-[url('{% static 'image/backgroundbox.jpg' %}')] bg-cover bg-center text-white border border-white p-8 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+            <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+            <img src="{% static 'image/logocart.png' %}" alt="Cart Logo" class="h-[110px] w-auto mr-2 filter invert brightness-0 relative z-10">
+            <h3 class="text-2xl font-semibold mb-2 relative z-10">Cart</h3>
+            <p class="text-lg text-center relative z-10">Manage your selected items and checkout.</p>
+            <div class="flex items-center mt-4 relative z-10">
+                <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+                </svg>
+            </div>
+        </a>
+        {% else %}
+        <a href="#" onclick="showLoginPopup()"  class="relative bg-[url('{% static 'image/backgroundbox.jpg' %}')] bg-cover bg-center text-white border border-white p-8 rounded-lg flex flex-col items-center justify-center hover:bg-gray-800 transition duration-300">
+            <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+            <img src="{% static 'image/logocart.png' %}" alt="Cart Logo" class="h-[110px] w-auto mr-2 filter invert brightness-0 relative z-10">
+            <h3 class="text-2xl font-semibold mb-2 relative z-10">Cart</h3>
+            <p class="text-lg text-center relative z-10">Manage your selected items and checkout.</p>
+            <div class="flex items-center mt-4 relative z-10">
+                <svg class="arrow-icon w-6 h-6 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h12m0 0l-6 6m6-6l-6-6" />
+                </svg>
+            </div>
+    </a>
+    {% endif %}
     </div>
 </div>
 
 <!-- New content for two-column section with cream background -->
-<div class="bg-[#f6f4ee] flex flex-col lg:flex-row items-start justify-between px-8 py-16 max-w-7xl mx-auto">
+<div class="bg-[#f6f4ee] w-full flex flex-col lg:flex-row items-start justify-between px-4 md:px-12 py-8 md:py-16 mx-auto">
     <!-- Left Column -->
     <div class="lg:w-1/2 pr-8">
         <h2 class="text-4xl font-bold mb-4">Stories, style, and sporting goods at ByteSoles, since 1949</h2>
@@ -37,7 +175,7 @@
             Through sports, we have the power to change lives. ByteSoles keeps you in step with the sneaker world. Our platform is designed to help you stay inspired, get moving, and discover sneakers that elevate your game. ByteSoles is home to the hottest releases and classic sneakers for every occasion.
         </p>
     </div>
-    
+
     <!-- Right Column -->
     <div class="lg:w-1/2 pl-8 mt-8 lg:mt-0">
         <h2 class="text-4xl font-bold mb-4">Sneakers for every adventure</h2>
@@ -46,6 +184,7 @@
         </p>
     </div>
 </div>
+
 
 <script>
   const swiper = new Swiper('.mySwiper', {
@@ -59,7 +198,15 @@
       prevEl: '.swiper-button-prev',
     },
   });
+
+    function showLoginPopup() {
+        document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.add('hidden');
+    }
 </script>
-
-
+{% include 'footer.html' %}
 {% endblock content %}
+</body>

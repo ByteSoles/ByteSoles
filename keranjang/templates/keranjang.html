@@ -14,7 +14,6 @@
     {% if item_keranjang %}
     <div class="container mx-auto py-16">
         <div class="flex flex-col lg:flex-row lg:justify-between gap-8">
-            <!-- Cart Items (Left Section) -->
             <div class="lg:w-2/3">
                 <h2 class="font-bold text-5xl mb-6">Your Bag</h2>
 
@@ -24,21 +23,18 @@
                 </div>
                 {% endif %}
 
-                <!-- List of Cart Items -->
                 <ul class="space-y-6">
     {% for item in item_keranjang %}
     <li class="flex items-start justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-start space-x-6">
-            <!-- Gambar Produk -->
             <img src="{{ item.sneaker.image }}" alt="{{ item.sneaker.name }}" class="w-24 h-24 object-cover rounded-lg">
             <div>
                 <h3 class="font-semibold text-lg">{{ item.sneaker.name }}</h3>
                 <p class="text-sm font-bold mt-2">$ {{ item.sneaker.price }}</p>
-                <!-- Input untuk mengubah kuantitas -->
                 <form class="update-quantity-form" data-item-id="{{ item.sneaker.id }}">
                     {% csrf_token %}
-                    <label for="quantity_{{ item.sneaker.id }}" class="mr-2">Jumlah:</label>
-                    <input type="number" name="quantity" id="quantity_{{ item.sneaker.id }}" value="{{ item.kuantitas }}" min="1" class="w-16 text-center border rounded">
+                    <label for="quantity_{{ item.sneaker.id }}" class="mr-2">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity_{{ item.sneaker.id }}" value="{{ item.kuantitas }}" min="1" max ="10" class="w-16 text-center border rounded">
                 </form>
             </div>
         </div>
@@ -50,152 +46,6 @@
     {% endfor %}
 </ul>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    
-    $(document).ready(function() {
-        // Fungsi untuk memperbarui kuantitas via AJAX
-        $('.update-quantity-form input[name="quantity"]').on('change', function() {
-            var $form = $(this).closest('.update-quantity-form');
-            var itemId = $form.data('item-id');
-            var quantity = $(this).val();
-            var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
-
-        });
-
-        // Fungsi untuk menghapus item via AJAX
-        $('.remove-item').on('click', function(e) {
-            e.preventDefault();
-            var itemId = $(this).data('item-id');
-            var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
-            var $itemRow = $(this).closest('li');
-
-            $.ajax({
-                url: '{% url "keranjang:remove_from_cart_ajax" %}',
-                method: 'POST',
-                data: {
-                    'item_id': itemId,
-                    'csrfmiddlewaretoken': csrfToken,
-                },
-                success: function(response) {
-                    // Hapus item dari DOM
-                    $itemRow.remove();
-
-                    // Perbarui total harga keranjang
-                    $('#cart-total-harga').text(response.total_harga);
-
-                    // Jika keranjang kosong, tampilkan pesan keranjang kosong
-                    if (response.cart_empty) {
-                        location.reload(); // Muat ulang halaman untuk menampilkan pesan keranjang kosong
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Tangani error
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
-                }
-            });
-        });
-    });
-
-        function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-
-    // Menyetel token CSRF dalam header permintaan AJAX
-    $.ajaxSetup({
-        headers: { 'X-CSRFToken': csrftoken }
-    });
-
-    $(document).ready(function() {
-        // Fungsi untuk memperbarui kuantitas via AJAX
-        $('.update-quantity-form input[name="quantity"]').on('change', function() {
-            var $form = $(this).closest('.update-quantity-form');
-            var itemId = $form.data('item-id');
-            var quantity = $(this).val();
-            var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
-
-            $.ajax({
-                url: '{% url "keranjang:update_quantity_ajax" %}',
-                method: 'POST',
-                data: {
-                    'item_id': itemId,
-                    'quantity': quantity,
-                    'csrfmiddlewaretoken': csrfToken,
-                },
-                success: function(response) {
-                    // Perbarui total harga item
-                    $form.closest('li').find('.item-total').text(response.item_total_harga);
-
-                    // Perbarui total harga keranjang
-                    $('#cart-total-harga').text(response.total_harga);
-
-                    // **Perbarui Order Summary**
-                    $('#summary-total-items').text(response.total_items);
-                    $('#summary-total-harga').text(response.total_harga);
-                    $('#summary-total-harga-final').text(response.total_harga);
-
-                    // Tampilkan pesan sukses (opsional)
-                    // alert('Kuantitas berhasil diperbarui.');
-                },
-                error: function(xhr, status, error) {
-                    // Tangani error
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
-                }
-            });
-        });
-
-        // Fungsi untuk menghapus item via AJAX
-        $('.remove-item').on('click', function(e) {
-            e.preventDefault();
-            var itemId = $(this).data('item-id');
-            var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
-            var $itemRow = $(this).closest('li');
-
-            $.ajax({
-                url: '{% url "keranjang:remove_from_cart_ajax" %}',
-                method: 'POST',
-                data: {
-                    'item_id': itemId,
-                    'csrfmiddlewaretoken': csrfToken,
-                },
-                success: function(response) {
-                    // Hapus item dari DOM
-                    $itemRow.remove();
-
-                    // Perbarui total harga keranjang
-                    $('#cart-total-harga').text(response.total_harga);
-
-                    // **Perbarui Order Summary**
-                    $('#summary-total-items').text(response.total_items);
-                    $('#summary-total-harga').text(response.total_harga);
-                    $('#summary-total-harga-final').text(response.total_harga);
-
-                    // Jika keranjang kosong, muat ulang halaman
-                    if (response.cart_empty) {
-                        location.reload();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Tangani error
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
-                }
-            });
-        });
-    });
-
-</script>
 
 
                 <!-- Total Items and Price -->
@@ -243,11 +93,8 @@
                                         <img src="{% static 'img/bca.png' %}" class="w-16">
                                         <img src="{% static 'img/cimb.png' %}" class="w-16">
                                         <img src="{% static 'img/bri.png' %}" class="w-16">
-
                             </div>
                         </div>
-
-                        <!-- Checkout Button -->
                         <a href="{% url 'keranjang:checkout_page' %}" class="bg-black text-white font-semibold py-3 px-10 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 ease-in-out transform hover:scale-105">
                             Checkout
                         </a>
@@ -263,12 +110,127 @@
         <div class="flex space-x-4 justify-center">
             <img src="{% static 'img/empty.png' %}" class="w-40">
         </div>
-
-        <!-- Button to start shopping -->
         <a href="{% url 'homepage:show_homepage' %}" class="inline-block bg-black text-white py-3 px-6 rounded-lg font-bold transition-all duration-300 ease-in-out transform hover:scale-105">
             GET STARTED →
         </a>
     </div>
     {% endif %}
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+
+            $(document).ready(function() {
+                $('.update-quantity-form input[name="quantity"]').on('change', function() {
+                    var $form = $(this).closest('.update-quantity-form');
+                    var itemId = $form.data('item-id');
+                    var quantity = $(this).val();
+                    var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
+
+                });
+
+                $('.remove-item').on('click', function(e) {
+                    e.preventDefault();
+                    var itemId = $(this).data('item-id');
+                    var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
+                    var $itemRow = $(this).closest('li');
+
+                    $.ajax({
+                        url: '{% url "keranjang:remove_from_cart_ajax" %}',
+                        method: 'POST',
+                        data: {
+                            'item_id': itemId,
+                            'csrfmiddlewaretoken': csrfToken,
+                        },
+                        success: function(response) {
+                            $itemRow.remove();
+                            $('#cart-total-harga').text(response.total_harga);
+
+                            if (response.cart_empty) {
+                                location.reload();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                        }
+                    });
+                });
+            });
+
+                function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+            $.ajaxSetup({
+                headers: { 'X-CSRFToken': csrftoken }
+            });
+
+            $(document).ready(function() {
+                $('.update-quantity-form input[name="quantity"]').on('change', function() {
+                    var $form = $(this).closest('.update-quantity-form');
+                    var itemId = $form.data('item-id');
+                    var quantity = $(this).val();
+                    var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
+
+                    $.ajax({
+                        url: '{% url "keranjang:update_quantity_ajax" %}',
+                        method: 'POST',
+                        data: {
+                            'item_id': itemId,
+                            'quantity': quantity,
+                            'csrfmiddlewaretoken': csrfToken,
+                        },
+                        success: function(response) {
+                            $form.closest('li').find('.item-total').text(response.item_total_harga);
+                            $('#cart-total-harga').text(response.total_harga);
+                            $('#summary-total-items').text(response.total_items);
+                            $('#summary-total-harga').text(response.total_harga);
+                            $('#summary-total-harga-final').text(response.total_harga);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                        }
+                    });
+                });
+                $('.remove-item').on('click', function(e) {
+                    e.preventDefault();
+                    var itemId = $(this).data('item-id');
+                    var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
+                    var $itemRow = $(this).closest('li');
+
+                    $.ajax({
+                        url: '{% url "keranjang:remove_from_cart_ajax" %}',
+                        method: 'POST',
+                        data: {
+                            'item_id': itemId,
+                            'csrfmiddlewaretoken': csrfToken,
+                        },
+                        success: function(response) {
+                            $itemRow.remove();
+                            $('#cart-total-harga').text(response.total_harga);
+                            $('#summary-total-items').text(response.total_items);
+                            $('#summary-total-harga').text(response.total_harga);
+                            $('#summary-total-harga-final').text(response.total_harga);
+                            if (response.cart_empty) {
+                                location.reload();
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                        }
+                    });
+                });
+            });
+        </script>
 </div>
 {% endblock %}
