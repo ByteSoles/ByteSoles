@@ -1,11 +1,7 @@
-# keranjang/views.py
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import PurchaseHistory
 from catalog.models import Sneaker
 from django.contrib import messages
-from catalog.models import Sneaker
 
 
 def view_keranjang(request):
@@ -31,7 +27,7 @@ def view_keranjang(request):
         'item_added': item_added,
     })
 
-@login_required
+@login_required(login_url='login')
 def add_to_cart(request, item_id):
     sneaker = get_object_or_404(Sneaker, id=item_id)
     keranjang = request.session.get('keranjang', {})
@@ -46,6 +42,7 @@ def add_to_cart(request, item_id):
 
     return redirect('keranjang:view_keranjang')
 
+@login_required
 def remove_from_cart(request, item_id):
     keranjang = request.session.get('keranjang', {})
 
@@ -56,22 +53,16 @@ def remove_from_cart(request, item_id):
 
     return redirect('keranjang:view_keranjang')
 
-@login_required
+
+@login_required(login_url='login')
 def checkout(request):
     keranjang = request.session.get('keranjang', {})
+    if not keranjang:
+        return redirect('keranjang:view_keranjang')
+
     if request.method == 'POST':
-        if not keranjang:
-            return redirect('keranjang:view_keranjang')
-
-        for item_id, kuantitas in keranjang.items():
-            sneaker = get_object_or_404(Sneaker, id=item_id)
-            PurchaseHistory.objects.create(
-                user=request.user,
-                sneaker=sneaker,
-                quantity=kuantitas
-            )
-
-        request.session['keranjang'] = {}
+        # Proses checkout
+        # ...
         return redirect('keranjang:payment_successful')
     else:
         item_keranjang = []
@@ -89,11 +80,10 @@ def checkout(request):
             'total_harga': total_harga,
         })
 
-# @login_required
+@login_required(login_url='login')
 def payment_successful(request):
-    purchase_history = PurchaseHistory.objects.filter(user=request.user).order_by('-purchase_date')
-    return render(request, 'keranjang/payment_successful.html', {'purchase_history': purchase_history})
-
+    # Tampilkan halaman konfirmasi tanpa riwayat pembelian
+    return render(request, 'checkout.html')
 
 def update_quantity(request, item_id):
     if request.method == 'POST':

@@ -49,3 +49,5 @@ def show_product_by_slug(request, product_slug):
 def product_detail(request, slug):
     product = get_object_or_404(Sneaker, slug=slug)
     return render(request, 'detail_product/detail_product.html', {'product': product})
+    return render(request, 'detail_product.html', context)
+
