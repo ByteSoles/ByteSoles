@@ -37,4 +37,4 @@ def remove_from_wishlist(request, product_id):
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'status': 'success'})
-    return redirect('wishlist')
+    return redirect('wishlist:wishlist')
