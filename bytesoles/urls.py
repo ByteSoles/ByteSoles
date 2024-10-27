@@ -9,8 +9,6 @@ urlpatterns = [
     path('', include('homepage.urls')), 
     path('catalog/', include('catalog.urls')),
     path('detail_product/', include('detail_product.urls')),
-    path('keranjang/', include('keranjang.urls', namespace='keranjang')),
-
-    
+    path('keranjang/', include('keranjang.urls', namespace='keranjang')),    
     path('review/', include('review.urls')),
 ]
