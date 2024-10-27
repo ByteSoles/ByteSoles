@@ -3,9 +3,6 @@ from catalog.models import Sneaker
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 
-
-# Create your views here.
-
 def view_catalog(request):
     sneakers = Sneaker.objects.all().values()
     context = {
@@ -34,16 +31,21 @@ def get_filtered_products(request):
         'name': product.name,
         'brand': product.brand,
         'price': product.price,
-        'image': product.image if product.image else '',  # Handle image URL
+        'image': product.image if product.image else '',
         'slug': product.slug
     } for product in products]
 
     return JsonResponse(product_list, safe=False)
 
 def show_product_by_slug(request, product_slug):
-    product = get_object_or_404(Sneaker, slug=product_slug)  # Find the product by slug
+    product = get_object_or_404(Sneaker, slug=product_slug)
+    print("Product ID:", product.id)
     print("Product Image URL:", product.image)
     context = {
         'product': product,
     }
     return render(request, 'detail_product.html', context)  # Ensure the template path is correct
+
+def product_detail(request, slug):
+    product = get_object_or_404(Sneaker, slug=slug)
+    return render(request, 'detail_product/detail_product.html', {'product': product})

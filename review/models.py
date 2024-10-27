@@ -5,6 +5,13 @@ from catalog.models import Sneaker
 import uuid
 
 class Review(models.Model):
+    sneaker = models.OneToOneField(Sneaker, on_delete=models.CASCADE)
+    rating = models.DecimalField(default=0, max_digits=5, decimal_places=1)
+
+    def __str__(self):
+        return str(self.pk)
+
+class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=255)
     sneaker = models.ForeignKey(Sneaker, on_delete=models.CASCADE)

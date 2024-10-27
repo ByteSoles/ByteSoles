@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-{% include 'navbar.html' %}
+
 <!-- Main Container -->
-<div class="container mx-auto p-4 pt-[100px] z-20">
+<div class="container mx-auto p-4">
 
     <!-- Title Section -->
     <div class="text-center mb-8">
@@ -24,7 +24,7 @@
         </select>
 
         <!-- Dropdown for Price -->
-        <div class="relative z-30">
+        <div class="relative z-50">
             <button id="price-dropdown-btn" class="px-4 py-2 bg-gray-200 rounded-full">
                 Price
             </button>
@@ -115,7 +115,6 @@ async function refreshProducts(minPrice = 50, maxPrice = 500, brand = 'all') {
         const price = item.price;
         const productUrl = `/catalog/products/${item.slug}/`; 
         htmlString += `
-<<<<<<< HEAD
             <a href="${productUrl}" class="relative bg-white shadow-md rounded-lg mb-6 flex flex-col border border-gray-200 p-4">
                 <!-- Product Image -->
                 <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover mb-4">
@@ -127,21 +126,6 @@ async function refreshProducts(minPrice = 50, maxPrice = 500, brand = 'all') {
                     <p class="text-black font-semibold text-lg">$${item.price}</p>
                 </div>
             </a>
-=======
-            <div class="relative bg-white shadow-md rounded-lg mb-6 flex flex-col border border-gray-200 p-4">
-                <a href="/review/reviews/${item.name}/">
-                    <!-- Product Image -->
-                    <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover mb-4">
-                    
-                    <!-- Product Details -->
-                    <div class="flex flex-col justify-between">
-                        <h3 class="text-black font-bold text-lg mb-2">${item.name}</h3>
-                        <p class="text-gray-500">${item.brand}</p>
-                        <p class="text-black font-semibold text-lg">$${item.price}</p>
-                    </div>
-                </a>
-            </div>
->>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71
         `;
     });
 

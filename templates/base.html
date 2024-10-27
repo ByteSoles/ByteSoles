@@ -1,79 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
   <head>
     {% block meta %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
     {% endblock meta %}
-<<<<<<< HEAD
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
-    <title>{% block title %}Nama Situs Anda{% endblock %}</title>
-    <style>
-        /* Tambahkan CSS sesuai kebutuhan */
-        .profile-icon {
-            float: right;
-            cursor: pointer;
-        }
-        .dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .dropdown a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown a:hover {
-            background-color: #f1f1f1;
-        }
-    </style>
-=======
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
->>>>>>> 9e74df23bcf0cf31dab7e02d81e28a57a4733f71
   </head>
 
   <body>
-    <header>
-        <!-- Tambahkan navigasi atau elemen header lainnya di sini -->
-        <div class="profile-icon" onclick="toggleDropdown()">👤</div>
-        <div id="profileDropdown" class="dropdown">
-            {% if user.is_authenticated %}
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'register' %}">Register</a>
-            {% endif %}
-        </div>
-    </header>
-
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <footer>
-        <!-- Tambahkan footer di sini -->
-    </footer>
-
-    <script>
-        function toggleDropdown() {
-            var dropdown = document.getElementById("profileDropdown");
-            if (dropdown.style.display === "block") {
-                dropdown.style.display = "none";
-            } else {
-                dropdown.style.display = "block";
-            }
-        }
-    </script>
+    {% block content %} 
+    {% endblock content %}
   </body>
 </html>
