@@ -1,7 +1,7 @@
 # models.py
 from django.db import models
 from django.contrib.auth.models import User
-from catalog.models import Sneaker  # Pastikan Sneaker diimpor dari app catalog
+from catalog.models import Sneaker
 
 class UserCart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

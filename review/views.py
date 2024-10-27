@@ -85,8 +85,6 @@ def edit_review_ajax(request, slug):
 
     return HttpResponse(b"UPDATED", status=201)
 
-@csrf_exempt
-@require_POST
 @login_required
 def delete_review(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug)
@@ -94,8 +92,8 @@ def delete_review(request, slug):
     rating = get_object_or_404(Rating, sneaker=sneaker)
 
     rating.total_score -= review.score
-    rating.review_count -= 1
     rating.rating = rating.total_score / rating.review_count
+    rating.review_count -= 1
 
     review.delete()
     rating.save()

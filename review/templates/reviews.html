@@ -351,10 +351,7 @@
         }
 
         function deleteReview() {
-            fetch("{% url 'review:delete_review' sneaker.slug %}", {
-                method: "POST",
-                body: new FormData(document.querySelector('#reviewForm')),
-            })
+            fetch("{% url 'review:delete_review' sneaker.slug %}")
             .then(response => {
                 refreshReviews();
                 hideModal();
