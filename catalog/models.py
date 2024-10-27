@@ -20,7 +20,6 @@ class Category(models.Model):
 class SneakerManager(models.Manager):
     def get_queryset(self):
         return super(SneakerManager,self).get_queryset().filter(is_active= True)
-    
 
 class Sneaker(models.Model):
     name = models.CharField(max_length=200)

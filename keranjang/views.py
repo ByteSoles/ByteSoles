@@ -1,70 +1,47 @@
-from django.shortcuts import render, get_object_or_404, redirect
+import datetime
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from catalog.models import Sneaker
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import render, redirect
-from .models import UserCart, PurchaseHistory
-import json
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.urls import reverse
+from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.utils.html import strip_tags
+from catalog.models import Sneaker
+from keranjang.models import CartItem, UserCart
 
 
 def view_keranjang(request):
-    keranjang = request.session.get('keranjang', {})
-    item_keranjang = []
-    total_harga = 0
-    invalid_items = []
-
-    for slug, kuantitas in keranjang.items():
-        try:
-            sneaker = Sneaker.objects.get(slug=slug)
-            item_keranjang.append({
-                'sneaker': sneaker,
-                'kuantitas': kuantitas,
-                'total_harga': sneaker.price * kuantitas,
-            })
-            total_harga += sneaker.price * kuantitas
-        except Sneaker.DoesNotExist:
-            invalid_items.append(slug)
-
-    # Hapus item yang tidak valid dari keranjang
-    for slug in invalid_items:
-        del keranjang[slug]
-    request.session['keranjang'] = keranjang
-
     item_added = request.session.get('item_added', False)
     request.session['item_added'] = False
+    
+    return render(request, 'keranjang.html', {'item_added': item_added})
 
-    return render(request, 'keranjang.html', {
-        'item_keranjang': item_keranjang,
-        'total_harga': total_harga,
-        'item_added': item_added,
-    })
-
-
-@login_required(login_url='login')
+@login_required(login_url='homepage:login')
 def add_to_cart(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug)
-    keranjang = request.session.get('keranjang', {})
-    
+    user = request.user
 
-    if str(slug) in keranjang:
-        keranjang[str(slug)] += 1
-    else:
-        keranjang[str(slug)] = 1
+    try:
+        cart_item = get_object_or_404(CartItem, user=user, sneaker=sneaker)
+        cart_item.quantity += 1
+    except Http404:
+        cart_item = CartItem (
+            user = user,
+            sneaker = sneaker,
+            quantity = 1,
+        )
+        
+    cart_item.save()
 
-    request.session['keranjang'] = keranjang
     request.session['item_added'] = True
 
-    cartitem = PurchaseHistory (
-        user = request.user,
-        sneaker = sneaker,
-        quantity = 1,
-    )
-    cartitem.save()
     return redirect('keranjang:view_keranjang')
 
-@login_required(login_url='login')
+@login_required
 def remove_from_cart(request, slug):
     keranjang = request.session.get('keranjang', {})
 
@@ -104,11 +81,8 @@ def checkout(request):
 
 @login_required(login_url='login')
 def payment_successful(request):
-    purchase_history = PurchaseHistory.objects.filter(user=request.user).order_by('-purchase_date')
-    return render(request, 'checkout_success.html', {
-        'purchase_history': purchase_history,
-    })
-
+    # Tampilkan halaman konfirmasi tanpa riwayat pembelian
+    return render(request, 'checkout.html')
 
 def update_quantity(request, slug):
     if request.method == 'POST':
@@ -117,15 +91,9 @@ def update_quantity(request, slug):
             keranjang = request.session.get('keranjang', {})
             keranjang[str(slug)] = int(quantity)
             request.session['keranjang'] = keranjang
-            sneaker = get_object_or_404(Sneaker,slug=slug)
-            cartitem = get_object_or_404(PurchaseHistory,sneaker=sneaker)
-            cartitem.quantity = quantity
-            cartitem.save()
             messages.success(request, 'Kuantitas berhasil diperbarui.')
-
         else:
             messages.error(request, 'Masukkan jumlah yang valid.')
-
     return redirect('keranjang:view_keranjang')
 
 from django.http import JsonResponse
@@ -154,6 +122,7 @@ def update_quantity_ajax(request):
                         item_sneaker = get_object_or_404(Sneaker, slug=slug)
                         total_harga += item_sneaker.price * kuantitas
                         total_items += kuantitas  
+
                     return JsonResponse({
                         'item_total_harga': item_total_harga,
                         'total_harga': total_harga,
@@ -167,6 +136,7 @@ def update_quantity_ajax(request):
             return JsonResponse({'error': 'Parameter hilang'}, status=400)
     else:
         return JsonResponse({'error': 'Metode permintaan tidak valid'}, status=405)
+
 
 @csrf_exempt
 def remove_from_cart_ajax(request):
@@ -199,35 +169,26 @@ def remove_from_cart_ajax(request):
     else:
         return JsonResponse({'error': 'Metode permintaan tidak valid'}, status=405)
     
-def custom_login(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                # Muat keranjang dari database
-                try:
-                    user_cart = UserCart.objects.get(user=user)
-                    cart_data = json.loads(user_cart.cart_data)
-                    request.session['keranjang'] = cart_data
-                except UserCart.DoesNotExist:
-                    request.session['keranjang'] = {}
-                return redirect('homepage:show_homepage')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+def get_user_cart(request):
+    user_cart = UserCart.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", user_cart), content_type="application/json")
 
-@login_required
-def custom_logout(request):
-    # Simpan keranjang ke database sebelum logout
-    cart_data = request.session.get('keranjang', {})
-    if cart_data:
-        cart_json = json.dumps(cart_data)
-        user_cart, created = UserCart.objects.get_or_create(user=request.user)
-        user_cart.cart_data = cart_json
-        user_cart.save()
-    logout(request)
-    return redirect('homepage:show_homepage')
+def get_sneaker(request, id):
+    sneaker = Sneaker.objects.filter(id=id)
+    return HttpResponse(serializers.serialize("json", sneaker), content_type="application/json")
+    
+def show_xml(request):
+    data = CartItem.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json(request):
+    data = CartItem.objects.filter(user=request.user)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
+
+def show_xml_by_id(request, review_id):
+    data = CartItem.objects.filter(pk=review_id)
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
+
+def show_json_by_id(request, review_id):
+    data = CartItem.objects.filter(pk=review_id)
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")

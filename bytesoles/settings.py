@@ -38,12 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'catalog',
-    'keranjang',
-    'detail_product',
     'homepage',
+    'catalog',
+    'detail_product',
+    'keranjang',
     'review',
-    'wishlist',
 ]
 
 MIDDLEWARE = [
@@ -124,17 +123,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+DEBUG = True
+
 STATIC_URL = '/static/'
-if DEBUG:
-    STATICFILES_DIRS = [
-        BASE_DIR / 'static'
-    ]
-else:
-    STATIC_ROOT = BASE_DIR / 'static'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

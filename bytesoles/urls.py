@@ -3,13 +3,11 @@ from django.urls import path, include
 
 
 urlpatterns = [
-
     path('admin/', admin.site.urls),
-    path('keranjang/', include('keranjang.urls')),  # Make sure this line matches the app name and file location
     path('', include('homepage.urls')), 
-    path('catalog/', include('catalog.urls', namespace='catalog')),
+    path('catalog/', include('catalog.urls')),
+    #path('catalog/products/<slug:product_slug>/', views.show_product_by_slug, name='sneaker_detail'),
     path('detail_product/', include('detail_product.urls')),
-    path('keranjang/', include('keranjang.urls', namespace='keranjang')),
+    path('keranjang/', include('keranjang.urls')),
     path('review/', include('review.urls')),
-    path('wishlist/', include('wishlist.urls')),
 ]

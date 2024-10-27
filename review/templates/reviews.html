@@ -12,14 +12,18 @@
             <h1 class="text-[27px] font-bold pb-6">Reviews</h1>
             <div class="flex items-center justify-between w-full p-8 mb-6 border border-2 rounded-lg max-h-[250px]">
                 <div class="flex justify-start items-center gap-8 h-[250px] p-4">
-                    <img src="{{ image }}" alt="{{ sneaker_name }}" class="h-full object-cover rounded-lg">
-                    <h2 class="text-[20px] font-semibold">{{ sneaker_name }}</h2>
+                    <img src="{{ sneaker.image }}" alt="{{ sneaker.name }}" class="h-full object-cover rounded-lg">
+                    <h2 class="text-[20px] font-semibold">{{ sneaker.name }}</h2>
                 </div>
-                <div class="flex flex-col items-center justify-center">
-                    <button id="addReviewBtn" data-modal-target="crudModal" data-modal-toggle="crudModal" class="btn bg-black hover:bg-[#303030] w-full text-white font-bold py-2 px-4 mb-2 rounded-lg transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
+                <div class="flex flex-col items-center justify-center [width:40%]">
+                    <div class="flex">
+                        <span class="fa fa-star mb-10 text-[#fcd303] text-3xl mr-2"></span>
+                        <h2 id="rating" class="text-3xl"></h1>
+                    </div>
+                    <button id="addReviewBtn" data-modal-target="crudModal" data-modal-toggle="crudModal" class="bg-black [width:95%] hover:bg-[#303030] w-full text-white font-bold py-2 px-4 mb-2 rounded-lg transition duration-200 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
                         Add Review  
                     </button>
-                    <h1 class="text-center text-gray-500">Give your review, help others make informed purchasing decisions!</h1>
+                    <h1 id="letsReview" class="text-center text-gray-500">Give your review, help others make informed purchasing decisions!</h1>
                 </div>
             </div>
             <div id="review_cards"></div>
@@ -29,13 +33,13 @@
                     <div class="flex flex-col border-b rounded-t">
                         <div class="bg-black rounded-t-lg">
                             <h2 class="text-xl text-white font-semibold text-center py-3">
-                                {{ sneaker_name }}
+                                {{ sneaker.name }}
                             </h2>
                         </div>
                         <div class="flex pt-3 px-3">
                             <div class="flex-1"></div>
                             <div class="flex flex-1 text-center items-center justify-center">
-                                <img src="{{ image }}" alt="{{ sneaker_name }}" class="w-48 object-cover rounded-lg">
+                                <img src="{{ sneaker.image }}" alt="{{ sneaker.name }}" class="w-48 object-cover rounded-lg">
                             </div>
                             <div class="flex-1 text-right">
                                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center transition duration-200" id="closeModalBtn">
@@ -63,18 +67,29 @@
                                 <span class="fa fa-star stars-btn checked" data-value="4"></span>
                                 <span class="fa fa-star stars-btn checked" data-value="5"></span>
                             </div>
-                            <textarea name="review_description" placeholder="Write your review..." class="w-full mt-4 px-2 h-[350px] focus:outline-none focus:ring-1 focus:ring-black rounded"></textarea>
+                            <textarea name="review_description" placeholder="Write your review..." class="w-full mt-4 px-2 h-[350px] border border-gray-300 outline-none focus:ring-1 focus:ring-black rounded" value=""></textarea>
                         </form>
                     </div>
                     <!-- Modal footer -->
                     <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
-                        <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200" id="cancelButton">Cancel</button>
+                        <button type="button" class="hover:bg-gray-300 text-black border border-3 border-black font-bold py-2 px-4 rounded-lg transition duration-200" id="cancelButton">Cancel</button>
                         <button type="submit" id="submitReview" form="reviewForm" class="bg-black hover:bg-[#303030] text-white font-bold py-2 px-4 rounded-lg transition duration-200">Sumbit</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Popup Modal -->
+    <div id="popup" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg space-y-4 text-center">
+          <h2 class="text-2xl font-semibold">Warning</h2>
+          <p class="text-gray-700">You have to login to give a review.</p>
+          <button id="closePopup" 
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+            Close
+          </button>
+        </div>
+      </div>
     <style>
         .checked {
             color: #fcd303;
@@ -88,13 +103,21 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         async function getReviews(){
-            return fetch("{% url 'review:show_json' sneaker_name %}").then((res) => res.json())
+            return fetch("{% url 'review:show_json' sneaker.slug %}").then((res) => res.json())
+        }
+
+        async function getRating(){
+            return fetch("{% url 'review:get_rating' sneaker.slug %}").then((res) => res.text())
         }
 
         async function refreshReviews() {
             document.getElementById("review_cards").innerHTML = "";
             document.getElementById("review_cards").className = "";
             const reviews = await getReviews();
+            const rating = await getRating();
+            const userReview = reviews.find(review => 
+                String(review.fields.user) === '{{ user.id }}'
+            );
             let htmlString = "";
             let classNameString = "";
 
@@ -102,63 +125,129 @@
                 classNameString = "flex flex-col items-center justify-center min-h-[24rem] p-6";
                 htmlString = `
                     <div class="flex flex-col items-center justify-center min-h-[24rem] p-6">
-                        <p class="text-center text-gray-600 mt-4">No reviews yet.</p>
+                        <p class="text-center text-gray-600 mt-4">No reviews yet</p>
                     </div>
                 `;
             }
             else {
-                classNameString = "columns-2 gap-6 space-y-6 w-full"
-                reviews.forEach((review) => {
-                    const username = DOMPurify.sanitize(review.fields.username);
-                    const review_description = DOMPurify.sanitize(review.fields.review_description);
-                    let starsHTML = '';
+                classNameString = "flex flex-col w-full"
+                let starsHTML = '';
+                if (userReview){
+                    const reviewDescriptionLoggedIn = DOMPurify.sanitize(userReview.fields.review_description);
 
                     for (let i = 1; i <= 5; i++) {
                     starsHTML += `
-                            <span class="fa fa-star stars-btn ${i <= review.fields.score ? 'text-[#fcd303]' : 'text-gray-300'}"></span>
+                            <span class="fa fa-star ${i <= userReview.fields.score ? 'text-[#fcd303]' : 'text-gray-300'}"></span>
                         `;
                     }
 
                     htmlString += `
-                        <div class="w-max-md bg-white rounded-lg shadow-xl overflow-hidden border">
-                            <div class="p-4">
-                                <div class="flex items-center mb-2">
-                                    ${starsHTML}
+                        <div class="flex flex-col w-full">
+                            <h1 class="text-[18px] font-bold pl-2 -mt-1 mb-4">Your Review</h1>
+                            <div class="flex rounded-lg shadow-xl border mb-6">
+                                <div class="flex-1 p-4">
+                                    <div class="flex items-center mb-2">
+                                        ${starsHTML}
+                                    </div>
+                                    <p class="text-[13px] text-gray-600">By You</p>
+                                    <p class="mt-2 text-[15px] text-black">${reviewDescriptionLoggedIn}</p>
+                                    <p class="mt-2 text-[12px] text-gray-500">Reviewed on ${userReview.fields.date}</p>
                                 </div>
-                                <p class="text-[13px] text-gray-600">By ${username}</p>
-                                <p class="mt-2 text-[15px] text-black">${review_description}</p>
-                                <p class="mt-2 text-[12px] text-gray-500">Reviewed on ${review.fields.date}</p>
+                                <div class="flex flex-1 flex-col justify-center items-end pr-10">
+                                    <button id="editBtn" data-modal-target="crudModal" data-modal-toggle="crudModal" class="[width:35%] bg-black hover:bg-[#303030] text-[13px] text-white font-bold py-2 px-4 mb-2 rounded-lg transition duration-200" onclick="editModal();">
+                                        Edit
+                                    </button>
+                                    <button id="deleteBtn" data-modal-target="crudModal" data-modal-toggle="crudModal" class="[width:35%] bg-red-500 hover:bg-[#7d2028] text-[13px] text-white font-bold py-2 px-4 mb-2 rounded-lg transition duration-200" onclick="deleteReview();">
+                                        Delete
+                                    </button> 
+                                </div>
                             </div>
                         </div>
+                        <div class="flex flex-col w-full">
+                            <h1 class="col-span-1 md:col-span-2 text-[18px] font-bold pl-2 mb-4">Other Reviews</h1>
+                        </div>
+                    `;
+                }
+                htmlString += `
+                    <div class="columns-1 md:columns-2 gap-6 space-y-5 w-full">
+                `;
+                reviews.forEach((review) => {
+                    if (userReview) {
+                        if (review.fields.user === userReview.fields.user){
+                            return;
+                        }
+                    }
+                    const username = DOMPurify.sanitize(review.fields.username);
+                    const reviewDescription = DOMPurify.sanitize(review.fields.review_description);
+                    starsHTML = '';
+
+                    for (let i = 1; i <= 5; i++) {
+                    starsHTML += `
+                            <span class="fa fa-star ${i <= review.fields.score ? 'text-[#fcd303]' : 'text-gray-300'}"></span>
+                        `;
+                    }
+                    htmlString += `
+                            <div class="relative break-inside-avoid bg-white rounded-lg shadow-xl overflow-hidden border">
+                                <div class="p-4">
+                                    <div class="flex items-center mb-2">
+                                        ${starsHTML}
+                                    </div>
+                                    <p class="text-[13px] text-gray-600">By ${username}</p>
+                                    <p class="mt-2 text-[15px] text-black">${reviewDescription}</p>
+                                    <p class="mt-2 text-[12px] text-gray-500">Reviewed on ${review.fields.date}</p>
+                                </div>
+                            </div>
                     `;
                 });
             }
+            htmlString += `
+                </div>
+            `;
+
             document.getElementById("review_cards").className = classNameString;
             document.getElementById("review_cards").innerHTML = htmlString;
+            document.getElementById("rating").innerText = `${rating}`;
         }
         refreshReviews();
 
         async function checkUserReview() {
-            const reviews = await getReviews();
+            const addReviewBtn = document.getElementById("addReviewBtn");
+            const letsReview = document.getElementById('letsReview');
+            const submitReview = document.getElementById("submitReview");
+            const userLoggedIn = isUserLoggedIn();
 
-            const hasReviewed = reviews.some(review => 
-                review.fields.name === '{{ sneaker_name }}' && 
-                review.fields.user === '{{ user }}'
-            );
+            if (!userLoggedIn){
+                addReviewBtn.classList.add("hidden");
+                console.log('pass')
+                letsReview.innerText = 'Take a moment to look around and see what others think about this sneaker. Reading their reviews can help you make the perfect choice! (Login to give your own review)'
+            }
+            else {
+                addReviewBtn.classList.remove("hidden");
 
-            return hasReviewed;
-        }
-
-        checkUserReview()
-            .then(hasReviewed => {
-                const addReviewBtn = document.getElementById("addReviewBtn");
-                
+                const reviews = await getReviews();
+                const hasReviewed = reviews.some(review =>
+                    String(review.fields.user) === '{{ user.id }}'
+                );
+                            
                 if (hasReviewed) {
-                    addReviewBtn.classList.add("hidden");
-                } else {
-                    addReviewBtn.classList.remove("hidden");
+                    addReviewBtn.innerText = 'Edit Your Review'
+                    addReviewBtn.onclick = editModal;
+                    letsReview.innerText = 'We appreciate your review!'
+                    submitReview.onclick = editReview
                 }
-            });
+                else {
+                    addReviewBtn.innerText = 'Add Review'
+                    addReviewBtn.onclick = showModal;
+                    letsReview.innerText = 'Give your review, help others make informed purchasing decisions!'
+                    submitReview.onclick = addReview
+                }
+            }
+        }
+        checkUserReview();
+
+        function isUserLoggedIn() {
+            return '{{ user|default:"null" }}' !== 'null';
+        }
 
         const stars = document.querySelectorAll('.stars-btn');
 
@@ -167,10 +256,13 @@
                 const score = this.getAttribute('data-value');
                 document.getElementById('scoreInput').value = score;
 
-                stars.forEach(s => s.classList.remove('checked'));
-
-                for (let i = 0; i < score; i++) {
-                    stars[i].classList.add('checked');
+                for (let i = 0; i < stars.length; i++) {
+                    if (i < score) {
+                        stars[i].classList.add('checked');
+                    }
+                    else {
+                        stars[i].classList.remove('checked');
+                    }
                 }
             });
         });
@@ -187,7 +279,6 @@
         }
 
         function hideModal() {
-            console.log('realler')
             const modal = document.getElementById('crudModal');
             const modalContent = document.getElementById('crudModalContent');
 
@@ -206,20 +297,73 @@
         document.getElementById("closeModalBtn").addEventListener("click", hideModal);
 
         function addReview() {
-            console.log('hello')
-            fetch("{% url 'review:add_review_ajax' sneaker_name %}", {
+            fetch("{% url 'review:add_review_ajax' sneaker.slug %}", {
                 method: "POST",
                 body: new FormData(document.querySelector('#reviewForm')),
             })
             .then(response => {
                 refreshReviews();
                 hideModal();
+                checkUserReview();
             })
-
+            
             document.getElementById("reviewForm").reset();
             return false;
         }
 
-        document.getElementById("submitReview").onclick = addReview
+        async function editModal() {
+            const reviews = await getReviews();
+            const userReview = reviews.find(review =>
+                String(review.fields.user) === '{{ user.id }}'
+            );
+            const score = userReview.fields.score;
+            const reviewDescription = userReview.fields.review_description;
+
+            document.getElementById('scoreInput').value = score;
+            document.querySelector('textarea[name="review_description"]').value = reviewDescription;
+
+            const stars = document.querySelectorAll('.stars-btn');
+            for (let i = 0; i < stars.length; i++) {
+                if (i < score) {
+                    stars[i].classList.add('checked');
+                }
+                else {
+                    stars[i].classList.remove('checked');
+                }
+            }
+
+            document.getElementById('submitReview').innerText = 'Save'
+            showModal();
+        }
+
+        function editReview() {
+            fetch("{% url 'review:edit_review_ajax' sneaker.slug %}", {
+                method: "POST",
+                body: new FormData(document.querySelector('#reviewForm')),
+            })
+            .then(response => {
+                refreshReviews();
+                hideModal();
+                checkUserReview();
+            })
+            
+            document.getElementById("reviewForm").reset();
+            return false;
+        }
+
+        function deleteReview() {
+            fetch("{% url 'review:delete_review' sneaker.slug %}", {
+                method: "POST",
+                body: new FormData(document.querySelector('#reviewForm')),
+            })
+            .then(response => {
+                refreshReviews();
+                hideModal();
+                checkUserReview();
+            })
+            
+            document.getElementById("reviewForm").reset();
+            return false;
+        }
     </script>
 {% endblock content %}
