@@ -12,171 +12,112 @@ from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
 from catalog.models import Sneaker
 from keranjang.models import CartItem, UserCart
+from django.http import JsonResponse
 
 
 def view_keranjang(request):
     item_added = request.session.get('item_added', False)
     request.session['item_added'] = False
+    context = {
+        'item_added': item_added,
+    }
     
-    return render(request, 'keranjang.html', {'item_added': item_added})
+    return render(request, 'keranjang.html', context)
 
 @login_required(login_url='homepage:login')
 def add_to_cart(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug)
     user = request.user
+    cart = get_object_or_404(UserCart, user=request.user)
 
     try:
         cart_item = get_object_or_404(CartItem, user=user, sneaker=sneaker)
         cart_item.quantity += 1
+        cart_item.total_price += sneaker.price
     except Http404:
         cart_item = CartItem (
             user = user,
             sneaker = sneaker,
+            sneaker_name = sneaker.name,
+            sneaker_price = sneaker.price,
+            sneaker_image = sneaker.image,
             quantity = 1,
+            total_price = sneaker.price
         )
-        
+
+    cart.total_items += 1
+    cart.total_price += sneaker.price
+
+    cart.save()
     cart_item.save()
 
     request.session['item_added'] = True
 
     return redirect('keranjang:view_keranjang')
 
-@login_required
-def remove_from_cart(request, slug):
-    keranjang = request.session.get('keranjang', {})
-
-    if str(slug) in keranjang:
-        del keranjang[str(slug)]
-
-    request.session['keranjang'] = keranjang
-
-    return redirect('keranjang:view_keranjang')
-
-
 @login_required(login_url='login')
 def checkout(request):
-    keranjang = request.session.get('keranjang', {})
-    if not keranjang:
-        return redirect('keranjang:view_keranjang')
+    cart = get_object_or_404(UserCart, user=request.user)
+    cart_item = CartItem.objects.filter(user=request.user)
+    items = []
 
-    if request.method == 'POST':
-        # Proses checkout
-        # ...
-        return redirect('keranjang:payment_successful')
-    else:
-        item_keranjang = []
-        total_harga = 0
-        for slug, kuantitas in keranjang.items():
-            sneaker = get_object_or_404(Sneaker, slug=slug)
-            item_keranjang.append({
-                'sneaker': sneaker,
-                'kuantitas': kuantitas,
-                'total_harga': sneaker.price * kuantitas,
-            })
-            total_harga += sneaker.price * kuantitas
-        return render(request, 'keranjang/checkout.html', {
-            'item_keranjang': item_keranjang,
-            'total_harga': total_harga,
+    for item in cart_item:
+        sneaker = get_object_or_404(Sneaker, name=item.sneaker)
+        items.append({
+            'sneaker': sneaker,
+            'quantity': item.quantity,
+            'total_price': item.total_price,
         })
+    
+    data = {
+        'items': items,
+        'total_price': cart.total_price,
+    }
 
-@login_required(login_url='login')
-def payment_successful(request):
-    # Tampilkan halaman konfirmasi tanpa riwayat pembelian
-    return render(request, 'checkout.html')
-
-def update_quantity(request, slug):
-    if request.method == 'POST':
-        quantity = request.POST.get('quantity')
-        if quantity and int(quantity) > 0:
-            keranjang = request.session.get('keranjang', {})
-            keranjang[str(slug)] = int(quantity)
-            request.session['keranjang'] = keranjang
-            messages.success(request, 'Kuantitas berhasil diperbarui.')
-        else:
-            messages.error(request, 'Masukkan jumlah yang valid.')
-    return redirect('keranjang:view_keranjang')
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-
-@csrf_exempt 
-def update_quantity_ajax(request):
-    if request.method == 'POST':
-        slug = request.POST.get('slug')
-        quantity = request.POST.get('quantity')
-
-        if slug and quantity:
-            try:
-                quantity = int(quantity)
-                if quantity > 0:
-                    keranjang = request.session.get('keranjang', {})
-                    keranjang[slug] = quantity
-                    request.session['keranjang'] = keranjang
-
-                    sneaker = get_object_or_404(Sneaker, slug=slug)
-                    item_total_harga = sneaker.price * quantity
-
-                    total_harga = 0
-                    total_items = 0 
-                    for slug, kuantitas in keranjang.items():
-                        item_sneaker = get_object_or_404(Sneaker, slug=slug)
-                        total_harga += item_sneaker.price * kuantitas
-                        total_items += kuantitas  
-
-                    return JsonResponse({
-                        'item_total_harga': item_total_harga,
-                        'total_harga': total_harga,
-                        'total_items': total_items,
-                    })
-                else:
-                    return JsonResponse({'error': 'Jumlah tidak valid'}, status=400)
-            except ValueError:
-                return JsonResponse({'error': 'Jumlah tidak valid'}, status=400)
-        else:
-            return JsonResponse({'error': 'Parameter hilang'}, status=400)
-    else:
-        return JsonResponse({'error': 'Metode permintaan tidak valid'}, status=405)
-
+    return render(request, 'keranjang/checkout.html', data)
 
 @csrf_exempt
+@require_POST
+@login_required
+def update_quantity_ajax(request):
+    sneaker = request.POST.get('sneaker')
+    quantity = request.POST.get('quantity')
+    cart = get_object_or_404(UserCart, user=request.user)
+    cart_item = get_object_or_404(CartItem, user=request.user, sneaker=sneaker)
+
+    cart.total_items -= cart_item.quantity
+    cart_item.quantity = int(quantity)
+    cart.total_items += cart_item.quantity
+
+    cart.total_price -= cart_item.total_price
+    cart_item.total_price = cart_item.quantity * cart_item.sneaker_price
+    cart.total_price += cart_item.total_price
+
+    cart.save()
+    cart_item.save()
+
+    return HttpResponse(b"UPDATED", status=201)
+
+@csrf_exempt
+@require_POST
+@login_required
 def remove_from_cart_ajax(request):
-    if request.method == 'POST':
-        slug = request.POST.get('slug')
-        if slug:
-            keranjang = request.session.get('keranjang', {})
-            if slug in keranjang:
-                del keranjang[slug]
-                request.session['keranjang'] = keranjang
+    sneaker = request.POST.get('sneaker')
+    cart = get_object_or_404(UserCart, user=request.user)
+    cart_item = get_object_or_404(CartItem, user=request.user, sneaker=sneaker)
 
-                total_harga = 0
-                total_items = 0  
-                for slug, kuantitas in keranjang.items():
-                    item_sneaker = get_object_or_404(Sneaker, slug=slug)
-                    total_harga += item_sneaker.price * kuantitas
-                    total_items += kuantitas
+    cart.total_items -= cart_item.quantity
+    cart.total_price -= cart_item.total_price
 
-                cart_empty = len(keranjang) == 0
+    cart.save()
+    cart_item.delete()
 
-                return JsonResponse({
-                    'total_harga': total_harga,
-                    'total_items': total_items,
-                    'cart_empty': cart_empty,
-                })
-            else:
-                return JsonResponse({'error': 'Item tidak ada di keranjang'}, status=404)
-        else:
-            return JsonResponse({'error': 'Item ID hilang'}, status=400)
-    else:
-        return JsonResponse({'error': 'Metode permintaan tidak valid'}, status=405)
+    return HttpResponse(b"DELETED", status=201)
     
 def get_user_cart(request):
     user_cart = UserCart.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("json", user_cart), content_type="application/json")
 
-def get_sneaker(request, id):
-    sneaker = Sneaker.objects.filter(id=id)
-    return HttpResponse(serializers.serialize("json", sneaker), content_type="application/json")
-    
 def show_xml(request):
     data = CartItem.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")

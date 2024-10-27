@@ -13,6 +13,7 @@ from django.utils.html import strip_tags
 from review.models import Review, Rating
 from review.forms import ReviewForm
 from catalog.models import Sneaker
+from keranjang.models import CartItem 
 
 def show_reviews(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug) 

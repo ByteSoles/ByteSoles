@@ -16,10 +16,6 @@
         return fetch("{% url 'keranjang:get_user_cart' %}").then((res) => res.json())
     }
 
-    async function getSneaker(id){
-        return fetch(`/keranjang/get-sneaker/${id}`).then((res) => res.json())
-    }
-
     async function refreshCartItems() {
         document.getElementById("cart_items").innerHTML = "";
         document.getElementById("cart_items").className = "";
@@ -27,7 +23,6 @@
         const userCart = await getUserCart();
         let htmlString = "";
         let classNameString = "";
-
         if (cartItems.length === 0) {
             classNameString = "container mx-auto text-center py-16 pt-[100px] z-20";
             htmlString += `
@@ -41,7 +36,6 @@
             `;
         }
         else {
-
             const itemAdded = '{{ item_added|yesno:"true,false" }}';
             classNameString = "flex flex-col w-full pt-[100px] z-20";
             htmlString += `
@@ -59,25 +53,23 @@
                                 <ul class="space-y-6">
             `;
             cartItems.forEach((item) => {
-                const sneaker = getSneaker(item.fields.sneaker);
-                const username = item.fields.username; // Tanpa sanitasi
                 htmlString += `
                                     <li class="flex items-start justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
                                         <div class="flex items-start space-x-6">
-                                            <img src="${item.fields.sneaker.image}" alt="${item.fields.sneaker.name}" class="w-24 h-24 object-cover rounded-lg">
+                                            <img src="${item.fields.sneaker_image}" alt="${item.fields.sneaker_name}" class="w-24 h-24 object-cover rounded-lg">
                                             <div>
-                                                <h3 class="font-semibold text-lg">${item.fields.sneaker.name}</h3>
-                                                <p class="text-sm font-bold mt-2">$ ${item.fields.sneaker}</p>
-                                                <form class="update-quantity-form" data-item-id="${item.fields.sneaker.id}">
+                                                <h3 class="font-semibold text-lg">${item.fields.sneaker_name}</h3>
+                                                <p class="text-sm font-bold mt-2">$ ${item.fields.sneaker_price}</p>
+                                                <form class="update-quantity-form" data-item-id="${item.fields.sneaker}">
                                                     {% csrf_token %}
-                                                    <label for="quantity_${item.fields.sneaker.id}" class="mr-2">Quantity:</label>
-                                                    <input type="number" name="quantity" id="quantity_${item.fields.sneaker.id}" value="${item.fields.kuantitas}" min="1" max ="10" class="w-16 text-center border rounded">
+                                                    <label for="quantity_${item.fields.sneaker}" class="mr-2">Quantity:</label>
+                                                    <input type="number" name="quantity" id="quantity_${item.fields.sneaker}" value="${item.fields.quantity}" min="1" max ="10" class="w-16 text-center border rounded" onchange="updateQuantity(this);">
                                                 </form>
                                             </div>
                                         </div>
                                         <div class="text-right">
-                                            <p class="font-bold text-lg">Total: $ <span class="item-total">${item.fields.total_harga}</span></p>
-                                            <a href="#" data-item-id="${item.fields.sneaker.id}" class="remove-item text-red-600 underline mt-2 inline-block">Remove</a>
+                                            <p class="font-bold text-lg">Total: $ <span class="item-total">${item.fields.total_price}</span></p>
+                                            <button data-item-id="${item.fields.sneaker}" class="remove-item text-red-600 underline mt-2 inline-block bg-transparent" onclick="removeItem(this);">Remove</button>
                                         </div>
                                     </li>
                 `;
@@ -112,7 +104,7 @@
                                     </div>
 
                                     <!-- Payment Method Selection -->
-                                    <form action="/keranjang/checkout/" method="POST">
+                                    <form action="{% url 'keranjang:checkout_page' %}" method="POST>
                                         {% csrf_token %}
                                         <div class="mb-4">
                                             <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
@@ -145,85 +137,46 @@
         document.getElementById("cart_items").className = classNameString;
         document.getElementById("cart_items").innerHTML = htmlString;
     }
-    refreshCartItems(); 
+    refreshCartItems();
 
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-    $.ajaxSetup({
-        headers: { 'X-CSRFToken': csrftoken }
-    });
-
-    $(document).ready(function() {
-        // Handle update quantity
-        $('.update-quantity-form input[name="quantity"]').on('change', function() {
-            var $form = $(this).closest('.update-quantity-form');
-            var itemId = $form.data('item-id');
-            var quantity = $(this).val();
-            var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
-
-            $.ajax({
-                url: '{% url "keranjang:update_quantity_ajax" %}',
-                method: 'POST',
-                data: {
-                    'item_id': itemId,
-                    'quantity': quantity,
-                    'csrfmiddlewaretoken': csrfToken,
-                },
-                success: function(response) {
-                    $form.closest('li').find('.item-total').text(response.item_total_harga);
-                    $('#cart-total-harga').text(response.total_harga);
-                    $('#summary-total-items').text(response.total_items);
-                    $('#summary-total-harga').text(response.total_harga);
-                    $('#summary-total-harga-final').text(response.total_harga);
-                },
-                error: function(xhr, status, error) {
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
-                }
-            });
-        });
-
-        // Handle remove item
-        $('.remove-item').on('click', function(e) {
+    function updateQuantity(button) {
+        button.closest('form').addEventListener('submit', function(e) {
             e.preventDefault();
-            var itemId = $(this).data('item-id');
-            var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
-            var $itemRow = $(this).closest('li');
-
-            $.ajax({
-                url: '{% url "keranjang:remove_from_cart_ajax" %}',
-                method: 'POST',
-                data: {
-                    'item_id': itemId,
-                    'csrfmiddlewaretoken': csrfToken,
-                },
-                success: function(response) {
-                    $itemRow.remove();
-                    $('#cart-total-harga').text(response.total_harga);
-                    $('#summary-total-items').text(response.total_items);
-                    $('#summary-total-harga').text(response.total_harga);
-                    $('#summary-total-harga-final').text(response.total_harga);
-                    if (response.cart_empty) {
-                        location.reload();
-                    }
-                },
-                error: function(xhr, status, error) {
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
-                }
-            });
         });
-    });
+
+        const sneaker = button.getAttribute('id').split('_')[1];
+        const quantity = button.value
+
+        // if (quantity >= )
+
+        const data = new FormData();
+        data.append('sneaker', sneaker);
+        data.append('quantity', quantity);
+
+        fetch('{% url "keranjang:update_quantity_ajax" %}', {
+            method: 'POST',
+            body: data,
+        })
+        .then(data => {
+            refreshCartItems();
+        });
+    }
+
+    function removeItem(button) {
+        const sneaker = button.getAttribute('data-item-id');
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        const data = new FormData();
+        data.append('sneaker', sneaker);
+        data.append('csrfmiddlewaretoken', csrfToken);
+
+        fetch('{% url "keranjang:remove_from_cart_ajax" %}', {
+            method: 'POST',
+            body: data,
+        })
+        .then(data => {
+            refreshCartItems();
+        });
+    }
 </script>
 {% endblock %}
