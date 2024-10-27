@@ -1,21 +1,19 @@
 # models.py
 from django.db import models
+from django.contrib.auth.models import User
+from catalog.models import Sneaker  # Pastikan Sneaker diimpor dari app catalog
 
-class Sneaker(models.Model):
-    name = models.CharField(max_length=255)
-    brand = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.URLField(max_length=200)
-    release_date = models.DateField()
-    slug = models.SlugField(unique=True)
-    description = models.TextField(blank=True, null=True)
+class UserCart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    total_items = models.IntegerField(default=0)
+    total_harga = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.name
+        return f"{self.user.username}'s cart"
 
-
-class PurchaseHistory(models.Model):
-    sneaker = models.ForeignKey('catalog.Sneaker', on_delete=models.CASCADE)
+class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  
+    sneaker = models.ForeignKey(Sneaker, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     purchase_date = models.DateTimeField(auto_now_add=True)
 
@@ -24,4 +22,3 @@ class PurchaseHistory(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.sneaker.name} purchased by {self.user.username}"
-
