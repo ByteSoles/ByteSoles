@@ -138,7 +138,7 @@
                         url: '{% url "keranjang:remove_from_cart_ajax" %}',
                         method: 'POST',
                         data: {
-                            'item_id': itemId,
+                            'slug': slug,
                             'csrfmiddlewaretoken': csrfToken,
                         },
                         success: function(response) {
@@ -186,7 +186,7 @@
                         url: '{% url "keranjang:update_quantity_ajax" %}',
                         method: 'POST',
                         data: {
-                            'item_id': itemId,
+                            'slug': slug,
                             'quantity': quantity,
                             'csrfmiddlewaretoken': csrfToken,
                         },
@@ -212,7 +212,7 @@
                         url: '{% url "keranjang:remove_from_cart_ajax" %}',
                         method: 'POST',
                         data: {
-                            'item_id': itemId,
+                            'slug': slug,
                             'csrfmiddlewaretoken': csrfToken,
                         },
                         success: function(response) {
