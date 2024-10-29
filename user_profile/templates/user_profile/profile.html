@@ -1,17 +1,13 @@
+{# user_profile/templates/user_profile/profile.html #}
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
 <div class="min-h-screen bg-white">
-    <div class="flex flex-col lg:flex-row">
-        <!-- Hamburger Menu Button (Visible on Mobile) -->
-        <button class="lg:hidden bg-gray-100 text-black p-4" id="menuButton">
-            <i class="fa-solid fa-bars"></i> Menu
-        </button>
-
+    <div class="flex">
         <!-- Sidebar -->
-        <div id="sidebar" class="w-full lg:w-64 bg-gray-100 p-6 hidden lg:block">
-            <h2 class="text-xl font-semibold mb-8 text-gray-800 text-center lg:text-left">{{ user.get_full_name }}</h2>
+        <div class="w-64 min-h-screen bg-gray-100 p-6">
+            <h2 class="text-xl font-semibold mb-8 text-gray-800">{{ user.get_full_name }}</h2>
             
             <nav class="space-y-6">
                 <a href="{% url 'user_profile:profile' %}" class="block">
@@ -31,7 +27,7 @@
                             <span class="mr-3"><i class="fa-solid fa-box"></i></span>
                             <div>
                                 <div class="font-medium">Catalog</div>
-                                <div class="text-sm text-gray-600">Lihat semua produk</div>
+                                <div class="text-sm text-gray-600">See all products</div>
                             </div>
                         </div>
                     </div>
@@ -42,8 +38,8 @@
                         <div class="flex items-center text-gray-800">
                             <span class="mr-3"><i class="fa-solid fa-cart-shopping"></i></span>
                             <div>
-                                <div class="font-medium">Keranjang</div>
-                                <div class="text-sm text-gray-600">Lihat keranjang belanja Anda</div>
+                                <div class="font-medium">Cart</div>
+                                <div class="text-sm text-gray-600">View my cart</div>
                             </div>
                         </div>
                     </div>
@@ -55,7 +51,7 @@
                             <span class="mr-3"><i class="fa-solid fa-heart"></i></span>
                             <div>
                                 <div class="font-medium">Wishlist</div>
-                                <div class="text-sm text-gray-600">Lihat daftar keinginan Anda</div>
+                                <div class="text-sm text-gray-600">View my wishlist</div>
                             </div>
                         </div>
                     </div>
@@ -66,7 +62,7 @@
                             <span class="mr-3"><i class="fa-solid fa-house"></i></span>
                             <div>
                                 <div class="font-medium">Homepage</div>
-                                <div class="text-sm text-gray-600">Kembali ke halaman utama</div>
+                                <div class="text-sm text-gray-600">Return to homepage</div>
                             </div>
                         </div>
                     </div>
@@ -87,10 +83,9 @@
                 </form>
             </nav>
         </div>
-
         <!-- Main Content -->
-        <div class="flex-1 p-6 lg:p-8">
-            <div class="max-w-4xl mx-auto">
+        <div class="flex-1 p-8">
+            <div class="max-w-4xl">
                 {% if messages %}
                     {% for message in messages %}
                         <div class="mb-4 p-4 rounded {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
@@ -114,7 +109,7 @@
 
                     <!-- Display View -->
                     <div id="personal-info-display">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="grid grid-cols-3 gap-8">
                             <div>
                                 <div class="text-gray-400 mb-1">Name</div>
                                 <div>{{ user.get_full_name }}</div>
@@ -138,7 +133,7 @@
                     <!-- Edit Form -->
                     <form method="POST" id="personal-info-form" class="hidden" action="{% url 'user_profile:profile' %}">
                         {% csrf_token %}
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="grid grid-cols-3 gap-8">
                             <div>
                                 <div class="text-gray-400 mb-1">First Name</div>
                                 <input 
@@ -184,37 +179,6 @@
                         </div>
                     </form>
                 </div>
-
-                <!-- Shipping Info Section -->
-                <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800">Shipping Info</h2>
-                        <button type="button" class="px-4 py-2 rounded-full bg-black text-white text-sm hover:bg-gray-800 transition-colors" onclick="toggleEditForm('shipping-info')">
-                            Edit
-                        </button>
-                    </div>
-
-                    <!-- Display View -->
-                    <div id="shipping-info-display">
-                        <div class="text-gray-400 mb-1">Shipping</div>
-                        <div class="whitespace-pre-line">{{ user.profile.shipping_address|default:"No shipping address set" }}</div>
-                    </div>
-
-                    <!-- Edit Form -->
-                    <form method="POST" id="shipping-info-form" class="hidden" action="{% url 'user_profile:profile' %}">
-                        {% csrf_token %}
-                        <div class="text-gray-400 mb-1">Shipping Address</div>
-                        <textarea 
-                            name="shipping_address" 
-                            class="w-full p-2 rounded bg-gray-100 border border-gray-300 focus:border-black focus:ring-black focus:ring-1 focus:outline-none"
-                        >{{ user.profile.shipping_address }}</textarea>
-                        
-                        <div class="mt-6 flex space-x-4">
-                            <button type="submit" class="px-4 py-2 bg-black text-white rounded-full text-sm hover:bg-gray-800 transition-colors">Save Changes</button>
-                            <button type="button" onclick="toggleEditForm('shipping-info')" class="px-4 py-2 rounded-full bg-red-600 text-white text-sm hover:bg-red-700 transition-colors">Cancel</button>
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
@@ -233,13 +197,5 @@ function toggleEditForm(section) {
         formElement.classList.remove('hidden');
     }
 }
-
-// Toggle Sidebar on Mobile
-const menuButton = document.getElementById('menuButton');
-const sidebar = document.getElementById('sidebar');
-
-menuButton.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-});
 </script>
 {% endblock %}

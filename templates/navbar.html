@@ -1,6 +1,6 @@
 {% load static %}
-<nav class="bg-white shadow-lg fixed top-0 left-0 z-40 w-screen">
-  <div class="mx-auto px-4 sm:px-6 lg:px-8">
+<nav id="navbar" class="bg-white shadow-lg fixed top-0 left-0 z-50 w-screen transform transition-transform duration-500 ease-in-out">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8 border border-b-1 border-black">
     <div class="flex items-center h-[80px]">
       <div class="flex-1">
         <div class="flex items-center">
@@ -11,18 +11,14 @@
       </div>
       <div class="flex-1 h-full">
         <div class="flex flex-col justify-end items-center h-full">
-          <ul class="hidden md:flex space-x-6 [height:48%]">
-            <li class="hover:border-b-4 hover:border-black transition duration-200">
-              <a href="{% url 'homepage:show_homepage' %}" class="h-full text-black text-[20px] hover:text-[#565656] font-bold font-mono transition duration-200">
-                Home
-              </a>
-            </li>
-            <li class="hover:border-b-4 hover:border-black transition duration-200">
-              <a href="{% url 'catalog:view_catalog' %}" class="text-black text-[20px] hover:text-[#565656] font-bold font-mono transition duration-200">
-                Sneakers
-              </a>
-            </li>
-          </ul>
+          <div class="md:flex space-x-6 [height:48%]">
+            <a href="{% url 'homepage:show_homepage' %}" class="text-black text-[20px] hover:text-[#565656] font-bold font-mono transition duration-200 hover:border-b-4 hover:border-black transition duration-200">
+              Home
+            </a>
+            <a href="{% url 'catalog:view_catalog' %}" class="text-black text-[20px] hover:text-[#565656] font-bold font-mono transition duration-200 hover:border-b-4 hover:border-black transition duration-200">
+              Sneakers
+            </a>
+          </div>
         </div>
       </div>
 
@@ -30,15 +26,17 @@
         <div class="hidden md:flex items-center justify-end">
           {% if user.is_authenticated %}
           <a href="{% url 'wishlist:wishlist' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
-            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-heart mr-2"></i>
+            <h2 class="text-[16px] font-bold">Wishlist</h2>
           </a>
-            <a href="{% url 'keranjang:view_keranjang' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
-              <i class="fa-solid fa-cart-shopping"></i>
-            </a>
-            <a href="{% url 'user_profile:profile' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
-              <i class="fa-solid fa-user mr-2"></i>
-              <h2 class="text-[16px] font-bold">{{ user.username }}</h2>
-            </a>
+          <a href="{% url 'keranjang:view_keranjang' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
+            <i class="fa-solid fa-cart-shopping mr-2"></i>
+            <h2 class="text-[16px] font-bold">Cart</h2>
+          </a>
+          <a href="{% url 'user_profile:profile' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
+            <i class="fa-solid fa-user mr-2"></i>
+            <h2 class="text-[16px] font-bold">{{ user.username }}</h2>
+          </a>
           {% else %}
             <div class="flex flex-col items-center justify-center">
               <form method="POST" action="{% url 'homepage:login' %}">
@@ -101,6 +99,21 @@
       if (currentUrlInput) {
         currentUrlInput.value = currentURL;
       }
+    });
+
+    let lastScrollPos = 0;
+    const navbar = document.getElementById('navbar');
+
+    window.addEventListener('scroll', () => {
+      const currentScrollPos = window.pageYOffset;
+
+      if (currentScrollPos > lastScrollPos) {
+        navbar.classList.add('-translate-y-full');
+      } else {
+        navbar.classList.remove('-translate-y-full');
+      }
+
+      lastScrollPos = currentScrollPos;
     });
   </script>
 </nav>

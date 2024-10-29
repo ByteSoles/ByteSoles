@@ -6,4 +6,4 @@ class UserProfileForm(forms.ModelForm):
     
     class Meta:
         model = UserProfile
-        fields = ['shoe_size', 'address', 'phone_number']  # Sesuaikan dengan field yang ada di model Anda
+        fields = ['shoe_size', 'address', 'phone_number']

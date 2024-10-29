@@ -10,9 +10,10 @@ from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.html import strip_tags
-from review.models import Review #, Rating
+from review.models import Review, Rating
 from review.forms import ReviewForm
 from catalog.models import Sneaker
+from keranjang.models import CartItem 
 
 def show_reviews(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug) 
@@ -36,7 +37,7 @@ def add_review_ajax(request, slug):
     review_description = request.POST.get("review_description")
     score = request.POST.get("score")
 
-    new_review = Review(
+    new_review = Review (
         user = request.user,
         username = request.user.username,
         sneaker = sneaker,
@@ -84,8 +85,6 @@ def edit_review_ajax(request, slug):
 
     return HttpResponse(b"UPDATED", status=201)
 
-@csrf_exempt
-@require_POST
 @login_required
 def delete_review(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug)
@@ -93,8 +92,8 @@ def delete_review(request, slug):
     rating = get_object_or_404(Rating, sneaker=sneaker)
 
     rating.total_score -= review.score
-    rating.review_count -= 1
     rating.rating = rating.total_score / rating.review_count
+    rating.review_count -= 1
 
     review.delete()
     rating.save()

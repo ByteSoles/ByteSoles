@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from catalog.models import Sneaker
 import uuid
 
-class Review(models.Model):
+class Rating(models.Model):
     sneaker = models.OneToOneField(Sneaker, on_delete=models.CASCADE)
     rating = models.DecimalField(default=0, max_digits=5, decimal_places=1)
     total_score = models.IntegerField(default=0)
@@ -15,10 +15,10 @@ class Review(models.Model):
 
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255)
+    username = models.CharField(max_length=20)
     sneaker = models.ForeignKey(Sneaker, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True)
-    review_description = models.CharField(max_length=255)
+    review_description = models.CharField(max_length=500)
     score = models.IntegerField(default=0,
         validators=[
             MaxValueValidator(5),

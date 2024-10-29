@@ -2,235 +2,178 @@
 {% load static %}
 
 {% block content %}
-{% if messages %}
-    {% for message in messages %}
-    <div class="p-4 mb-4 text-sm text-{{ message.tags }}-700 bg-{{ message.tags }}-100 rounded-lg" role="alert">
-        {{ message }}
-    </div>
-    {% endfor %}
-{% endif %}
 {% include "navbar.html" %}
-<div class="container mx-auto text-center py-16">
-    {% if item_keranjang %}
-    <div class="container mx-auto py-16">
-        <div class="flex flex-col lg:flex-row lg:justify-between gap-8">
-            <div class="lg:w-2/3">
-                <h2 class="font-bold text-5xl mb-6">Your Bag</h2>
+<div id="cart_items" class=""></div>
+<script>
+    async function getCartItems(){
+        return fetch("{% url 'keranjang:show_json' %}").then((res) => res.json())
+    }
 
-                {% if item_added %}
-                <div class="bg-green-100 text-green-700 p-4 mb-6 rounded shadow-md">
-                    <p class="text-sm font-semibold">Item successfully added to your cart!</p>
+    async function getUserCart(){
+        return fetch("{% url 'keranjang:get_user_cart' %}").then((res) => res.json())
+    }
+
+    async function refreshCartItems() {
+        document.getElementById("cart_items").innerHTML = "";
+        document.getElementById("cart_items").className = "";
+        const cartItems = await getCartItems();
+        const userCart = await getUserCart();
+        let htmlString = "";
+        let classNameString = "";
+        if (cartItems.length === 0) {
+            classNameString = "flex flex-col h-screen items-center justify-center container mx-auto text-center py-16 pt-[100px] z-20";
+            htmlString += `
+                <h2 class="text-4xl font-bold mb-4"> YOUR BAG IS EMPTY </h2>
+                <div class="flex space-x-4 justify-center">
+                    <img src="{% static 'img/empty.png' %}" class="w-40">
                 </div>
-                {% endif %}
+                <a href="{% url 'homepage:show_homepage' %}" class="inline-block bg-black text-white py-3 px-6 rounded-lg font-bold transition-all duration-300 ease-in-out transform hover:scale-105">
+                    GET STARTED →
+                </a>
+            `;
+        }
+        else {
+            const itemAdded = '{{ item_added|yesno:"true,false" }}';
+            classNameString = "flex flex-col w-full pt-[100px] z-20";
+            htmlString += `
+                    <div class="container mx-auto py-16">
+                        <div class="flex flex-col lg:flex-row lg:justify-between gap-8">
+                            <div class="lg:w-2/3">
+                                <h2 class="font-bold text-5xl mb-6">Your Bag</h2>
 
-                <ul class="space-y-6">
-    {% for item in item_keranjang %}
-    <li class="flex items-start justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-start space-x-6">
-            <img src="{{ item.sneaker.image }}" alt="{{ item.sneaker.name }}" class="w-24 h-24 object-cover rounded-lg">
-            <div>
-                <h3 class="font-semibold text-lg">{{ item.sneaker.name }}</h3>
-                <p class="text-sm font-bold mt-2">$ {{ item.sneaker.price }}</p>
-                <form class="update-quantity-form" data-item-id="{{ item.sneaker.id }}">
-                    {% csrf_token %}
-                    <label for="quantity_{{ item.sneaker.id }}" class="mr-2">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity_{{ item.sneaker.id }}" value="{{ item.kuantitas }}" min="1" max ="10" class="w-16 text-center border rounded">
-                </form>
-            </div>
-        </div>
-        <div class="text-right">
-            <p class="font-bold text-lg">Total: $ <span class="item-total">{{ item.total_harga }}</span></p>
-            <a href="#" data-item-id="{{ item.sneaker.id }}" class="remove-item text-red-600 underline mt-2 inline-block">Remove</a>
-        </div>
-    </li>
-    {% endfor %}
-</ul>
+                                ${itemAdded === 'true' ? `
+                                    <div class="bg-green-100 text-green-700 p-4 mb-6 rounded shadow-md">
+                                        <p class="text-sm font-semibold">Item successfully added to your cart!</p>
+                                    </div>
+                                    ` : ''}
 
+                                <ul class="space-y-6">
+            `;
+            cartItems.forEach((item) => {
+                htmlString += `
+                                    <li class="flex items-start justify-between p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                        <div class="flex items-start space-x-6">
+                                            <img src="${item.fields.sneaker_image}" alt="${item.fields.sneaker_name}" class="w-24 h-24 object-cover rounded-lg">
+                                            <div>
+                                                <h3 class="font-semibold text-lg">${item.fields.sneaker_name}</h3>
+                                                <p class="text-sm font-bold mt-2">$ ${item.fields.sneaker_price}</p>
+                                                <form class="update-quantity-form" data-item-id="${item.fields.sneaker}">
+                                                    {% csrf_token %}
+                                                    <label for="quantity_${item.fields.sneaker}" class="mr-2">Quantity:</label>
+                                                    <input type="number" name="quantity" id="quantity_${item.fields.sneaker}" value="${item.fields.quantity}" min="1" max ="10" class="w-16 text-center border rounded" onchange="updateQuantity(this);">
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-bold text-lg">Total: $ <span class="item-total">${item.fields.total_price}</span></p>
+                                            <button data-item-id="${item.fields.sneaker}" class="remove-item text-red-600 underline mt-2 inline-block bg-transparent" onclick="removeItem(this);">Remove</button>
+                                        </div>
+                                    </li>
+                `;
+            });
+            htmlString += `
+                                </ul>
+                                <!-- Total Items and Price -->
+                                <p class="mt-8 text-xl font-bold">
+                                    TOTAL: (<span id="cart-total-items">${userCart[0].fields.total_items}</span> items)
+                                    <span class="text-green-700">$ <span id="cart-total-harga">${userCart[0].fields.total_price}</span></span>
+                                </p>        
+                            </div>
+                            <div class="lg:w-1/3">
+                                <div class="border p-6 rounded-lg bg-gray-100 shadow-md">
+                                    <h3 class="font-semibold text-lg mb-4">Order Summary</h3>
 
+                                    <div class="flex justify-between mb-3">
+                                        <p class="text-gray-700">
+                                            <span id="summary-total-items">${userCart[0].fields.total_items}</span> Items
+                                        </p>
+                                        <p class="text-gray-700">$ 
+                                            <span id="summary-total-harga">${userCart[0].fields.total_price}</span>
+                                        </p>
+                                    </div>
+                                    <div class="flex justify-between mb-3">
+                                        <p class="text-gray-700">Delivery</p>
+                                        <p class="text-gray-700">FREE</p>
+                                    </div>
+                                    <div class="flex justify-between font-bold text-lg mt-4">
+                                        <p>Total</p>
+                                        <p class="text-green-700">$ <span id="summary-total-harga-final">${userCart[0].fields.total_price}</span></p>
+                                    </div>
 
-                <!-- Total Items and Price -->
-                <p class="mt-8 text-xl font-bold">
-                    TOTAL: (<span id="cart-total-items">{{ item_keranjang|length }}</span> items)
-                    <span class="text-green-700">$ <span id="cart-total-harga">{{ total_harga }}</span></span>
-                </p>        
-            </div>
-
-            
-            <div class="lg:w-1/3">
-                <div class="border p-6 rounded-lg bg-gray-100 shadow-md">
-                    <h3 class="font-semibold text-lg mb-4">Order Summary</h3>
-
-                    <div class="flex justify-between mb-3">
-                        <p class="text-gray-700">
-                            <span id="summary-total-items">{{ item_keranjang|length }}</span> Items
-                        </p>
-                        <p class="text-gray-700">$ <span id="summary-total-harga">{{ total_harga }}</span></p>
-                    </div>
-                    <div class="flex justify-between mb-3">
-                        <p class="text-gray-700">Delivery</p>
-                        <p class="text-gray-700">FREE</p>
-                    </div>
-                    <div class="flex justify-between font-bold text-lg mt-4">
-                        <p>Total</p>
-                        <p class="text-green-700">$ <span id="summary-total-harga-final">{{ total_harga }}</span></p>
-                    </div>
-
-                    <!-- Payment Method Selection -->
-                    <form action="{% url 'keranjang:checkout_page' %}" method="POST">
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
-                            <select id="payment_method" name="payment_method" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                <option value="BCA">BCA</option>
-                                <option value="BNI">BNI</option>
-                                <option value="Mandiri">Mandiri</option>
-                                <option value="BRI">BRI</option>
-                                <option value="CIMB">CIMB</option>
-                            </select>
-                            <div class="flex space-x-4 justify-center">
-                                        <img src="{% static 'img/mandiri.png' %}" class="w-16">
-                                        <img src="{% static 'img/bni.png' %}" class="w-16">
-                                        <img src="{% static 'img/bca.png' %}" class="w-16">
-                                        <img src="{% static 'img/cimb.png' %}" class="w-16">
-                                        <img src="{% static 'img/bri.png' %}" class="w-16">
+                                    <!-- Payment Method Selection -->
+                                    <form action="{% url 'keranjang:checkout_page' %}" method="POST>
+                                        {% csrf_token %}
+                                        <div class="mb-4">
+                                            <label for="payment_method" class="block text-sm font-medium text-gray-700">Payment Method</label>
+                                            <select id="payment_method" name="payment_method" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                                <option value="BCA">BCA</option>
+                                                <option value="BNI">BNI</option>
+                                                <option value="Mandiri">Mandiri</option>
+                                                <option value="BRI">BRI</option>
+                                                <option value="CIMB">CIMB</option>
+                                            </select>
+                                            <div class="flex space-x-4 justify-center">
+                                                <img src="{% static 'img/mandiri.png' %}" class="w-16">
+                                                <img src="{% static 'img/bni.png' %}" class="w-16">
+                                                <img src="{% static 'img/bca.png' %}" class="w-16">
+                                                <img src="{% static 'img/cimb.png' %}" class="w-16">
+                                                <img src="{% static 'img/bri.png' %}" class="w-16">
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="bg-black text-white font-semibold py-3 px-10 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 ease-in-out transform hover:scale-105">
+                                            Checkout
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                        <a href="{% url 'keranjang:checkout_page' %}" class="bg-black text-white font-semibold py-3 px-10 rounded-lg shadow-lg hover:bg-gray-600 transition-all duration-300 ease-in-out transform hover:scale-105">
-                            Checkout
-                        </a>
-                    </form>
-                </div>
-            </div>
+                    </div>
+            `;
+        }
 
-        </div>
-    </div>
-    {% else %}
-    <div class="container mx-auto text-center py-16">
-        <h2 class="text-4xl font-bold mb-4"> YOUR BAG IS EMPTY </h2>
-        <div class="flex space-x-4 justify-center">
-            <img src="{% static 'img/empty.png' %}" class="w-40">
-        </div>
-        <a href="{% url 'homepage:show_homepage' %}" class="inline-block bg-black text-white py-3 px-6 rounded-lg font-bold transition-all duration-300 ease-in-out transform hover:scale-105">
-            GET STARTED →
-        </a>
-    </div>
-    {% endif %}
+        document.getElementById("cart_items").className = classNameString;
+        document.getElementById("cart_items").innerHTML = htmlString;
+    }
+    refreshCartItems();
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
+    function updateQuantity(button) {
+        button.closest('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
 
-            $(document).ready(function() {
-                $('.update-quantity-form input[name="quantity"]').on('change', function() {
-                    var $form = $(this).closest('.update-quantity-form');
-                    var itemId = $form.data('item-id');
-                    var quantity = $(this).val();
-                    var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
+        const sneaker = button.getAttribute('id').split('_')[1];
+        const quantity = button.value
 
-                });
+        // if (quantity >= )
 
-                $('.remove-item').on('click', function(e) {
-                    e.preventDefault();
-                    var itemId = $(this).data('item-id');
-                    var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
-                    var $itemRow = $(this).closest('li');
+        const data = new FormData();
+        data.append('sneaker', sneaker);
+        data.append('quantity', quantity);
 
-                    $.ajax({
-                        url: '{% url "keranjang:remove_from_cart_ajax" %}',
-                        method: 'POST',
-                        data: {
-                            'item_id': itemId,
-                            'csrfmiddlewaretoken': csrfToken,
-                        },
-                        success: function(response) {
-                            $itemRow.remove();
-                            $('#cart-total-harga').text(response.total_harga);
+        fetch('{% url "keranjang:update_quantity_ajax" %}', {
+            method: 'POST',
+            body: data,
+        })
+        .then(data => {
+            refreshCartItems();
+        });
+    }
 
-                            if (response.cart_empty) {
-                                location.reload();
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            alert('Terjadi kesalahan. Silakan coba lagi.');
-                        }
-                    });
-                });
-            });
+    function removeItem(button) {
+        const sneaker = button.getAttribute('data-item-id');
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
-                function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-            var csrftoken = getCookie('csrftoken');
-            $.ajaxSetup({
-                headers: { 'X-CSRFToken': csrftoken }
-            });
+        const data = new FormData();
+        data.append('sneaker', sneaker);
+        data.append('csrfmiddlewaretoken', csrfToken);
 
-            $(document).ready(function() {
-                $('.update-quantity-form input[name="quantity"]').on('change', function() {
-                    var $form = $(this).closest('.update-quantity-form');
-                    var itemId = $form.data('item-id');
-                    var quantity = $(this).val();
-                    var csrfToken = $form.find('input[name="csrfmiddlewaretoken"]').val();
-
-                    $.ajax({
-                        url: '{% url "keranjang:update_quantity_ajax" %}',
-                        method: 'POST',
-                        data: {
-                            'item_id': itemId,
-                            'quantity': quantity,
-                            'csrfmiddlewaretoken': csrfToken,
-                        },
-                        success: function(response) {
-                            $form.closest('li').find('.item-total').text(response.item_total_harga);
-                            $('#cart-total-harga').text(response.total_harga);
-                            $('#summary-total-items').text(response.total_items);
-                            $('#summary-total-harga').text(response.total_harga);
-                            $('#summary-total-harga-final').text(response.total_harga);
-                        },
-                        error: function(xhr, status, error) {
-                            alert('Terjadi kesalahan. Silakan coba lagi.');
-                        }
-                    });
-                });
-                $('.remove-item').on('click', function(e) {
-                    e.preventDefault();
-                    var itemId = $(this).data('item-id');
-                    var csrfToken = $('input[name="csrfmiddlewaretoken"]').first().val();
-                    var $itemRow = $(this).closest('li');
-
-                    $.ajax({
-                        url: '{% url "keranjang:remove_from_cart_ajax" %}',
-                        method: 'POST',
-                        data: {
-                            'item_id': itemId,
-                            'csrfmiddlewaretoken': csrfToken,
-                        },
-                        success: function(response) {
-                            $itemRow.remove();
-                            $('#cart-total-harga').text(response.total_harga);
-                            $('#summary-total-items').text(response.total_items);
-                            $('#summary-total-harga').text(response.total_harga);
-                            $('#summary-total-harga-final').text(response.total_harga);
-                            if (response.cart_empty) {
-                                location.reload();
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            alert('Terjadi kesalahan. Silakan coba lagi.');
-                        }
-                    });
-                });
-            });
-        </script>
-</div>
+        fetch('{% url "keranjang:remove_from_cart_ajax" %}', {
+            method: 'POST',
+            body: data,
+        })
+        .then(data => {
+            refreshCartItems();
+        });
+    }
+</script>
 {% endblock %}

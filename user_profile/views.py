@@ -1,10 +1,9 @@
-# user_profile/views.py
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import UserProfile
-from .forms import UserProfileForm  # Import form yang baru dibuat
+from .forms import UserProfileForm 
 
 @login_required
 def profile_view(request):
@@ -53,24 +52,6 @@ def update_personal_info(request):
             return JsonResponse({
                 'status': 'success',
                 'message': 'Profile updated successfully'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'status': 'error',
-                'message': str(e)
-            }, status=400)
-    return JsonResponse({'status': 'error'}, status=400)
-
-def update_shipping_info(request):
-    if request.method == 'POST' and request.is_ajax():
-        try:
-            user = request.user
-            user.profile.shipping_address = request.POST.get('shipping_address')
-            user.profile.save()
-            
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Shipping info updated successfully'
             })
         except Exception as e:
             return JsonResponse({
