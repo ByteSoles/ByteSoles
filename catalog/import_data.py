@@ -20,6 +20,7 @@ def run():
     df = pd.read_csv(csv_file_path, on_bad_lines='skip')
 
     for index, row in df.iterrows():
+        
         try:
             try:
                 release_date = datetime.strptime(row['release'], '%Y-%m-%d').date()
