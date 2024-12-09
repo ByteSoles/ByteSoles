@@ -59,6 +59,7 @@
                     <!-- Modal body -->
                     <div id="review-form" class="px-2">
                         <form id="reviewForm" method="POST" action="">
+                            {% csrf_token %}
                             <input type="hidden" name="score" id="scoreInput" value="5">
                             <div class="col flex items-center justify-center mt-4 text-2xl">
                                 <span class="fa fa-star stars-btn checked" data-value="1"></span>
@@ -100,7 +101,6 @@
             cursor: pointer;
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         async function getReviews(){
             return fetch("{% url 'review:show_json' sneaker.slug %}").then((res) => res.json())
@@ -218,8 +218,7 @@
 
             if (!userLoggedIn){
                 addReviewBtn.classList.add("hidden");
-                console.log('pass')
-                letsReview.innerText = 'Take a moment to look around and see what others think about this sneaker. Reading their reviews can help you make the perfect choice! (Login to give your own review)'
+                letsReview.innerText = 'Take a moment to look around and see what others think about this sneaker. Reading their reviews can help you make the perfect choice! (Login to give your own review)';
             }
             else {
                 addReviewBtn.classList.remove("hidden");
@@ -230,16 +229,16 @@
                 );
                             
                 if (hasReviewed) {
-                    addReviewBtn.innerText = 'Edit Your Review'
+                    addReviewBtn.innerText = 'Edit Your Review';
                     addReviewBtn.onclick = editModal;
-                    letsReview.innerText = 'We appreciate your review!'
-                    submitReview.onclick = editReview
+                    letsReview.innerText = 'We appreciate your review!';
+                    submitReview.onclick = editReview;
                 }
                 else {
-                    addReviewBtn.innerText = 'Add Review'
+                    addReviewBtn.innerText = 'Add Review';
                     addReviewBtn.onclick = showModal;
-                    letsReview.innerText = 'Give your review, help others make informed purchasing decisions!'
-                    submitReview.onclick = addReview
+                    letsReview.innerText = 'Give your review, help others make informed purchasing decisions!';
+                    submitReview.onclick = addReview;
                 }
             }
         }
@@ -352,10 +351,7 @@
         }
 
         function deleteReview() {
-            fetch("{% url 'review:delete_review' sneaker.slug %}", {
-                method: "POST",
-                body: new FormData(document.querySelector('#reviewForm')),
-            })
+            fetch("{% url 'review:delete_review' sneaker.slug %}")
             .then(response => {
                 refreshReviews();
                 hideModal();

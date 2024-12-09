@@ -1,5 +1,5 @@
 from django.urls import path
-from catalog.views import view_catalog, get_product_json, get_filtered_products, show_product_by_slug, product_detail
+from catalog.views import view_catalog, get_product_json, get_filtered_products, show_product_by_slug, get_recently_viewed, product_detail
 
 app_name = 'catalog'
 
@@ -8,5 +8,6 @@ urlpatterns = [
     path('view-json/', get_product_json, name='get_product_json'),
     path('get_filtered_products/', get_filtered_products, name='get_filtered_products'),
     path('products/<slug:product_slug>/', show_product_by_slug, name='show_product_by_slug'),
+    path('recently_viewed/', get_recently_viewed, name='get_recently_viewed'),
     path('products/<slug:slug>/', product_detail, name='product_detail'),
 ]

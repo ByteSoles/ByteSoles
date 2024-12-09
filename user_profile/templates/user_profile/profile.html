@@ -1,0 +1,201 @@
+{# user_profile/templates/user_profile/profile.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-white">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 min-h-screen bg-gray-100 p-6">
+            <h2 class="text-xl font-semibold mb-8 text-gray-800">{{ user.get_full_name }}</h2>
+            
+            <nav class="space-y-6">
+                <a href="{% url 'user_profile:profile' %}" class="block">
+                    <div class="space-y-1">
+                        <div class="flex items-center text-gray-800">
+                            <span class="mr-3"><i class="fa-solid fa-user"></i></span>
+                            <div>
+                                <div class="font-medium">Profile</div>
+                                <div class="text-sm text-gray-600">Shipping, Email, Password, Shoe Size</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <a href="{% url 'catalog:view_catalog' %}" class="block">
+                    <div class="space-y-1">
+                        <div class="flex items-center text-gray-800">
+                            <span class="mr-3"><i class="fa-solid fa-box"></i></span>
+                            <div>
+                                <div class="font-medium">Catalog</div>
+                                <div class="text-sm text-gray-600">See all products</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{% url 'keranjang:view_keranjang' %}" class="block">
+                    <div class="space-y-1">
+                        <div class="flex items-center text-gray-800">
+                            <span class="mr-3"><i class="fa-solid fa-cart-shopping"></i></span>
+                            <div>
+                                <div class="font-medium">Cart</div>
+                                <div class="text-sm text-gray-600">View my cart</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="{% url 'wishlist:wishlist' %}" class="block">
+                    <div class="space-y-1">
+                        <div class="flex items-center text-gray-800">
+                            <span class="mr-3"><i class="fa-solid fa-heart"></i></span>
+                            <div>
+                                <div class="font-medium">Wishlist</div>
+                                <div class="text-sm text-gray-600">View my wishlist</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <a href="{% url 'homepage:show_homepage' %}" class="block">
+                    <div class="space-y-1">
+                        <div class="flex items-center text-gray-800">
+                            <span class="mr-3"><i class="fa-solid fa-house"></i></span>
+                            <div>
+                                <div class="font-medium">Homepage</div>
+                                <div class="text-sm text-gray-600">Return to homepage</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full">
+                        <div class="space-y-1">
+                            <div class="flex items-center text-gray-800">
+                                <span class="mr-3"><i class="fa-solid fa-right-from-bracket"></i></span>
+                                <div>
+                                    <div class="font-medium">Log Out</div>
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+                </form>
+            </nav>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <div class="max-w-4xl">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-4 p-4 rounded {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Profile</h1>
+                </div>
+
+                <!-- Personal Information Section -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Personal Information</h2>
+                        <button type="button" class="px-4 py-2 rounded-full bg-black text-white text-sm hover:bg-gray-800 transition-colors" onclick="toggleEditForm('personal-info')">
+                            Edit
+                        </button>
+                    </div>
+
+                    <!-- Display View -->
+                    <div id="personal-info-display">
+                        <div class="grid grid-cols-3 gap-8">
+                            <div>
+                                <div class="text-gray-400 mb-1">Name</div>
+                                <div>{{ user.get_full_name }}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 mb-1">Shoe Size</div>
+                                <div>{{ user.profile.shoe_size|default:"Not Set" }}</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 mb-1">Email Address</div>
+                                <div>{{ user.email }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <div class="text-gray-400 mb-1">Username</div>
+                            <div>{{ user.username }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Form -->
+                    <form method="POST" id="personal-info-form" class="hidden" action="{% url 'user_profile:profile' %}">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-3 gap-8">
+                            <div>
+                                <div class="text-gray-400 mb-1">First Name</div>
+                                <input 
+                                    type="text" 
+                                    name="first_name" 
+                                    value="{{ user.first_name }}" 
+                                    class="w-full p-2 rounded bg-gray-100 border border-gray-300 focus:border-black focus:ring-black focus:ring-1 focus:outline-none"
+                                >
+                            </div>
+                            <div>
+                                <div class="text-gray-400 mb-1">Last Name</div>
+                                <input 
+                                    type="text" 
+                                    name="last_name" 
+                                    value="{{ user.last_name }}" 
+                                    class="w-full p-2 rounded bg-gray-100 border border-gray-300 focus:border-black focus:ring-black focus:ring-1 focus:outline-none"
+                                >
+                            </div>
+                            <div>
+                                <div class="text-gray-400 mb-1">Shoe Size</div>
+                                <input 
+                                    type="text" 
+                                    name="shoe_size" 
+                                    value="{{ user.profile.shoe_size }}" 
+                                    class="w-full p-2 rounded bg-gray-100 border border-gray-300 focus:border-black focus:ring-black focus:ring-1 focus:outline-none"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <div class="text-gray-400 mb-1">Email</div>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                value="{{ user.email }}" 
+                                class="w-full p-2 rounded bg-gray-100 border border-gray-300 focus:border-black focus:ring-black focus:ring-1 focus:outline-none"
+                            >
+                        </div>
+
+                        <div class="mt-6 flex space-x-4">
+                            <button type="submit" class="px-4 py-2 bg-black text-white rounded-full text-sm hover:bg-gray-800 transition-colors">Save Changes</button>
+                            <button type="button" onclick="toggleEditForm('personal-info')" class="px-4 py-2 rounded-full bg-red-600 text-white text-sm hover:bg-red-700 transition-colors">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleEditForm(section) {
+    const displayElement = document.getElementById(`${section}-display`);
+    const formElement = document.getElementById(`${section}-form`);
+    
+    if (displayElement.classList.contains('hidden')) {
+        displayElement.classList.remove('hidden');
+        formElement.classList.add('hidden');
+    } else {
+        displayElement.classList.add('hidden');
+        formElement.classList.remove('hidden');
+    }
+}
+</script>
+{% endblock %}

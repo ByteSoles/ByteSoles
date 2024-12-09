@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-----------Product details-------------->
+
+<div class="container mx-auto p-4">
+    <div class="bg-white shadow-2xl rounded-lg p-8 flex flex-col md:flex-row"> <!-- Increased shadow -->
+        <!-- Product Image -->
+        <div class="flex-shrink-0 w-full md:w-1/2">
+            <img src="{{ product.image }}" alt="{{ product.name }}" class="w-455 h-455 object-cover mb-4 md:mb-0"> <!-- Fixed size -->
+        </div>
+
+        <!-- Product Information -->
+        <div class="mt-4 md:mt-5 md:ml-8 w-full md:w-1/2">
+            <h1 class="text-5xl font-bold mb-4">{{ product.name }}</h1>
+            <p class="text-gray-600 mb-4">{{ product.brand }}</p>
+            <p class="text-2xl font-semibold text-black mb-4">${{ product.price }}</p>
+
+            <!-- Description -->
+            <div class="text-gray-700 leading-relaxed mb-6">
+                <p>This is a description of the product. It gives more details about the features and benefits.</p>
+            </div>
+
+            <!-- Shoe Size Dropdown -->
+            <div class="mt-4">
+                <label for="shoe-size" class="block text-lg font-semibold mb-2">Select Shoe Size</label>
+                <div class="relative inline-block w-full">
+                    <select id="shoe-size" class="block appearance-none w-full bg-white border border-black text-black py-3 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
+                        <option value="Select Size">Select Size</option>
+                        <option value="38">Size 38</option>
+                        <option value="39">Size 39</option>
+                        <option value="40">Size 40</option>
+                        <option value="41">Size 41</option>
+                        <option value="42">Size 42</option>
+                        <option value="43">Size 43</option>
+                        <option value="44">Size 44</option>
+                    </select>
+                    <!-- Dropdown Arrow -->
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M7 10l5 5 5-5H7z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add to Cart Button with SVG -->
+            <div class="mt-4">
+                <a href="#" class="flex items-center justify-center w-full h-12 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-200">
+                    <!-- SVG Cart Icon -->
+                    Add to Cart   
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32.402 32" id="Cart" class="w-6 h-6 ml-2 fill-current">
+                        <path d="M30 8H6c-.156 0-.292.054-.438.088l-.776-3.316A1 1 0 0 0 3.812 4H.942a1 1 0 0 0 0 2H3.02l1.242 5.312L6 20c0 .072.034.134.042.204l-1.018 4.58A.997.997 0 0 0 6 26h22.688a1 1 0 0 0 0-2H7.248l.458-2.06c.1.016.19.06.294.06h18.23c1.104 0 1.77-.218 2.302-1.5l3.248-9.964C32.344 8.75 31.106 8 30 8zM6 30a2 2 1080 1 0 4 0 2 2 1080 1 0-4 0zm18 0a2 2 1080 1 0 4 0 2 2 1080 1 0-4 0z" class="fill-current text-white"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="mt-4">
+                <a href="#" class="flex items-center justify-center w-full h-12 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition duration-200">
+                    <!-- SVG Wishlist Icon -->
+                    Add to Wishlist
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="Love" class="w-6 h-6 ml-2 fill-current">
+                        <path fill="#fcfbfb" d="M4.379 12.274A4.841 4.841 0 0 1 3 8.89C3 6.189 5.216 4 7.95 4c1.674 0 3.154.82 4.05 2.077A4.962 4.962 0 0 1 16.05 4C18.784 4 21 6.189 21 8.889a4.845 4.845 0 0 1-1.507 3.512L12 20l-7.621-7.726Z" class="fill-current"></path>
+                      </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock content %}

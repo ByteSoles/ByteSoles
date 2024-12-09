@@ -21,25 +21,28 @@
         <div class="bg-white bg-opacity-90 rounded-xl shadow-xl p-6 mt-6 mx-auto">
             <h3 class="text-2xl font-bold mb-4 text-gray-800">Your Purchase History</h3>
 
-            <ul class="space-y-4">
-                {% for item in item_keranjang %}
-                <li class="flex items-center justify-between p-4 bg-white border rounded-lg shadow-sm">
-                    <div class="flex items-center space-x-4">
-                        <img src="{{ item.sneaker.image }}" alt="{{ item.sneaker.name }}" class="w-16 h-16 object-cover rounded-lg">
-                        <div>
-                            <h4 class="font-semibold text-lg">{{ item.sneaker.name }}</h4>
-                            <p class="text-sm text-gray-500">Quantity: {{ item.kuantitas }}</p>
+            <div class="flex flex-col space-y-4">
+                {% for item in items %}
+                <div class="flex flex-col items-center border rounded-lg bg-white shadow-sm p-4">
+                    <div class="flex items-center justify-between space-x-4">
+                        <div class="flex items-center space-x-4">
+                            <img src="{{ item.sneaker.image }}" alt="{{ item.sneaker.name }}" class="w-16 h-16 object-cover rounded-lg">
+                            <div>
+                                <h4 class="font-semibold text-lg">{{ item.sneaker.name }}</h4>
+                                <p class="text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-[17px]">$ {{ item.total_price }}</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="font-bold text-lg">$ {{ item.total_harga }}</p>
-                    </div>
-                </li>
+                    <a href="/review/reviews/{{ item.sneaker.slug }}" class="mt-2 border bg-black text-white font-bold text-center rounded-lg p-2">Give Review</a>
+                </div>
                 {% endfor %}
-            </ul>
+            </div>
 
             <div class="mt-4 text-right">
-                <p class="text-xl font-bold">Total: $ {{ total_harga }}</p>
+                <p class="text-xl font-bold">Total: $ {{ total_price }}</p>
             </div>
         </div>
         <div class="mt-6">

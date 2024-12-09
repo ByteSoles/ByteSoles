@@ -1,10 +1,11 @@
+{% load static %}
 <nav id="navbar" class="bg-white shadow-lg fixed top-0 left-0 z-50 w-screen transform transition-transform duration-500 ease-in-out">
   <div class="mx-auto px-4 sm:px-6 lg:px-8 border border-b-1 border-black">
     <div class="flex items-center h-[80px]">
       <div class="flex-1">
         <div class="flex items-center">
           <a href="{% url 'homepage:show_homepage' %}" class="text-3xl font-bold text-left text-black">
-            ByteSoles
+            <img src="{% static 'image/logobytesoles.png' %}" alt="ByteSoles Logo" class="h-[110px] w-auto mr-2">
           </a>
         </div>
       </div>
@@ -20,20 +21,22 @@
           </div>
         </div>
       </div>
+
       <div class="flex-1">
         <div class="hidden md:flex items-center justify-end">
           {% if user.is_authenticated %}
           <a href="{% url 'wishlist:wishlist' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
-            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-heart mr-2"></i>
+            <h2 class="text-[16px] font-bold">Wishlist</h2>
           </a>
-            <a href="{% url 'keranjang:view_keranjang' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
-              <i class="fa-solid fa-cart-shopping mr-2"></i>
-              <h2 class="text-[16px] font-bold">Cart</h2>
-            </a>
-            <a href="{% url 'homepage:logout' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
-              <i class="fa-solid fa-user mr-2"></i>
-              <h2 class="text-[16px] font-bold">{{ user.username }}</h2>
-            </a>
+          <a href="{% url 'keranjang:view_keranjang' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-8">
+            <i class="fa-solid fa-cart-shopping mr-2"></i>
+            <h2 class="text-[16px] font-bold">Cart</h2>
+          </a>
+          <a href="{% url 'user_profile:profile' %}" class="flex items-center text-black text-[27px] hover:text-[#565656] transition duration-200 mr-2">
+            <i class="fa-solid fa-user mr-2"></i>
+            <h2 class="text-[16px] font-bold">{{ user.username }}</h2>
+          </a>
           {% else %}
             <div class="flex flex-col items-center justify-center">
               <form method="POST" action="{% url 'homepage:login' %}">
@@ -54,37 +57,37 @@
           {% endif %}
         </div>
       </div>
-      <div class="md:hidden flex items-center">
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden flex items-center justify-end">
         <button class="mobile-menu-button">
-          <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-6 h-6 text-black" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
             <path d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
       </div>
     </div>
   </div>
+
   <!-- Mobile menu -->
-  <div class="mobile-menu hidden md:hidden  px-4 w-full md:max-w-full">
-    <div class="pt-2 pb-3 space-y-1 mx-auto">
-      {% if user.is_authenticated %}
-        <span class="block text-gray-200 px-3 py-2">Welcome, {{ user.username }}</span>
-        <a href="{% url 'homepage:logout' %}" class="block text-center bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200">
-          Logout
-        </a>
-      {% else %}
-        <a href="{% url 'homepage:show_homepage' %}" class="block text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-200 mb-2">
-          Login
-        </a>
-        <a href="{% url 'homepage:register' %}" class="block text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-200">
-          Register
-        </a>
-      {% endif %}
-    </div>
+  <div class="mobile-menu hidden md:hidden px-4 py-2">
+    <a href="{% url 'homepage:show_homepage' %}" class="block text-black text-lg font-bold py-2 hover:text-gray-600">Home</a>
+    <a href="{% url 'catalog:view_catalog' %}" class="block text-black text-lg font-bold py-2 hover:text-gray-600">Sneakers</a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'wishlist:wishlist' %}" class="block text-black text-lg py-2 hover:text-gray-600">Wishlist</a>
+    <a href="{% url 'keranjang:view_keranjang' %}" class="block text-black text-lg py-2 hover:text-gray-600">Cart</a>
+
+    <a href="{% url 'user_profile:profile' %}" class="block text-black text-lg py-2 hover:text-gray-600">Profile</a>
+    <a href="{% url 'homepage:logout' %}" class="block text-black text-lg py-2 hover:text-gray-600">Logout</a>
+    {% else %}
+    <a href="{% url 'homepage:login' %}" class="block bg-black text-white text-center font-bold py-2 px-4 rounded hover:bg-gray-800 transition duration-200">Login</a>
+    <a href="{% url 'homepage:register' %}" class="block bg-green-500 text-white text-center font-bold py-2 px-4 rounded hover:bg-green-600 transition duration-200 mt-2">Register</a>
+    {% endif %}
   </div>
+  
   <script>
     const btn = document.querySelector("button.mobile-menu-button");
     const menu = document.querySelector(".mobile-menu");
-  
+
     btn.addEventListener("click", () => {
       menu.classList.toggle("hidden");
     });

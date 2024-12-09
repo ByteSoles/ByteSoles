@@ -17,16 +17,16 @@ def get_product_json(request):
 
 
 def get_filtered_products(request):
-    min_price = request.GET.get('min_price', 50)  # Default min price $50
-    max_price = request.GET.get('max_price', 500)  # Default max price $500
-    brand = request.GET.get('brand','all') # Default brand
+    min_price = request.GET.get('min_price', 50) 
+    max_price = request.GET.get('max_price', 500)  
+    brand = request.GET.get('brand','all') 
 
-    # Filter products by price
+
     products = Sneaker.objects.filter(price__gte=min_price, price__lte=max_price)
     if brand != 'all':
         products = products.filter(brand=brand)
 
-    # Serialize the products to JSON format
+
     product_list = [{
         'name': product.name,
         'brand': product.brand,
@@ -39,13 +39,49 @@ def get_filtered_products(request):
 
 def show_product_by_slug(request, product_slug):
     product = get_object_or_404(Sneaker, slug=product_slug)
-    print("Product ID:", product.id)
-    print("Product Image URL:", product.image)
+
+
+    recent_products = request.session.get('recently_viewed', [])
+
+    if product.id not in recent_products:
+        recent_products.append(product.id)
+        if len(recent_products) > 5:
+            recent_products.pop(0)  
+
+    request.session['recently_viewed'] = recent_products
+
+
+    # Track recently viewed products in the session
+    recent_products = request.session.get('recently_viewed', [])
+
+    if product.id not in recent_products:
+        recent_products.append(product.id)
+        if len(recent_products) > 5:
+            recent_products.pop(0)  # Keep only the last 5 items
+
+    request.session['recently_viewed'] = recent_products
+
     context = {
         'product': product,
     }
-    return render(request, 'detail_product.html', context)  # Ensure the template path is correct
+    return render(request, "detail_product.html", context)
 
+def get_recently_viewed(request):
+    recent_ids = request.session.get('recently_viewed', [])
+    recent_products = Sneaker.objects.filter(id__in=recent_ids)
+    
+    data = [
+        {
+            'name': product.name,
+            'brand': product.brand,
+            'price': product.price,
+            'image': product.image,
+            'slug': product.slug,
+        }
+        for product in recent_products
+    ]
+    
+    return JsonResponse(data, safe=False)
 def product_detail(request, slug):
     product = get_object_or_404(Sneaker, slug=slug)
     return render(request, 'detail_product/detail_product.html', {'product': product})
