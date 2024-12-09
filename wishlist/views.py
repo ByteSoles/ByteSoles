@@ -38,3 +38,17 @@ def remove_from_wishlist(request, product_id):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'status': 'success'})
     return redirect('wishlist')
+
+@login_required
+def get_wishlist_json(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user)
+    data = [{
+        'id': item.product.id,
+        'name': item.product.name,
+        'brand': item.product.brand,
+        'price': item.product.price,
+        'image': item.product.image if item.product.image else '',
+        'slug': item.product.slug
+    } for item in wishlist_items]
+    
+    return JsonResponse(data, safe=False)

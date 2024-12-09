@@ -25,6 +25,7 @@ SECRET_KEY = 'django-insecure-#xn85nx0jnygcza+u)_8uutml-5e^$kl#0qqh@gk+_+*ni2laf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "daffa-aqil31-bytesoles.pbp.cs.ui.ac.id", "10.0.2.2", "192.168.1.10"]
 ALLOWED_HOSTS = ["localhost", "127.0.0.1","10.0.2.2", "rajendra-rifqi-byte.pbp.cs.ui.ac.id"]
 
 
@@ -47,6 +48,8 @@ INSTALLED_APPS = [
     'user_profile',
     'corsheaders',
     'authentication',
+    'authentication',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
 
@@ -149,3 +153,9 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
