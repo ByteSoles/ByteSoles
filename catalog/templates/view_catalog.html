@@ -95,12 +95,12 @@ document.getElementById('price-dropdown-btn').addEventListener('click', function
     dropdown.classList.toggle('hidden');  // Toggle visibility
 });
 
-// Apply filters for both price and brand
+
 function applyFilters(minPrice, maxPrice, brand) {
     refreshProducts(minPrice, maxPrice, brand);
 }
 
-// Function to fetch and refresh products based on selected filters
+
 async function refreshProducts(minPrice = 50, maxPrice = 500, brand = 'all') {
     //console.log(products);  // Add this line to see the product data being fetched
 

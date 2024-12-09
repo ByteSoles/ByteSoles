@@ -13,4 +13,5 @@ urlpatterns = [
     path('wishlist/', include('wishlist.urls')),
     path('profile/', include('user_profile.urls')),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    path('auth/', include('authentication.urls')),
 ]
