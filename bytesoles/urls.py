@@ -18,6 +18,7 @@ urlpatterns = [
     path('user_profile/delete_account/', delete_account, name='delete_account'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('authentication/', include('authentication.urls')),
+    path('auth/', include('authentication.urls')),
 ]
 
 if settings.DEBUG:
