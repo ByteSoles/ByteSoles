@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'review',
     'wishlist',
     'user_profile',
+    'corsheaders', #ini tambahan
 ]
 
 MIDDLEWARE = [
@@ -57,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',#ini tambahan
+    'django.middleware.common.CommonMiddleware',#ini tambahan
 ]
 
 ROOT_URLCONF = 'bytesoles.urls'
@@ -138,3 +141,6 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_ALL_ORIGINS = True # For development only
+CORS_ALLOW_CREDENTIALS = True

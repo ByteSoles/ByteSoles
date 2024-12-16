@@ -8,3 +8,4 @@ pandas
 numpy
 pillow
 django-extensions
+django-cors-headers
