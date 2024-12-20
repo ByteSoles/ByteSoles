@@ -9,3 +9,5 @@ numpy
 pillow
 django-extensions
 django-cors-headers
+Django>=3.2,<4.0
+Pillow>=8.0.0

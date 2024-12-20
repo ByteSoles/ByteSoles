@@ -6,33 +6,30 @@ from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'midterm_project.settings')
 django.setup()
 
+def run(): 
 
-csv_file_path = 'dataset/sneakers.csv'
+    csv_file_path = 'dataset/sneakers.csv'
 
-
-if not os.path.exists(csv_file_path):
-    print("CSV file not found.")
-else:
+    if not os.path.exists(csv_file_path):
+        print("CSV file not found.")
+        return
 
     df = pd.read_csv(csv_file_path, on_bad_lines='skip')
 
     for index, row in df.iterrows():
+        
         try:
-
             try:
                 release_date = datetime.strptime(row['release'], '%Y-%m-%d').date()
             except (ValueError, TypeError):
                 print(f"Invalid release date for row {index}. Skipping.")
                 continue
 
-    
             slug = slugify(f"{row['item']} {row['brand']}")
 
-            
             if not Sneaker.objects.filter(slug=slug).exists():
                 
                 image_url = row['image']
@@ -40,7 +37,6 @@ else:
                     print(f"Image URL too long for '{row['item']}'. Skipping entry.")
                     continue
 
-                
                 sneakers = Sneaker(
                     name=row['item'],
                     brand=row['brand'],

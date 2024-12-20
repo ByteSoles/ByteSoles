@@ -76,7 +76,7 @@ def checkout(request):
 
 @csrf_exempt
 @require_POST
-@login_required
+@login_required(login_url='login')
 def update_quantity_ajax(request):
     sneaker = request.POST.get('sneaker')
     quantity = request.POST.get('quantity')
@@ -94,23 +94,34 @@ def update_quantity_ajax(request):
     cart.save()
     cart_item.save()
 
-    return HttpResponse(b"UPDATED", status=201)
+    # Mengirimkan respons JSON
+    return JsonResponse({'status': 'success', 'message': 'Quantity updated successfully'})
+
+
+from django.http import JsonResponse
 
 @csrf_exempt
 @require_POST
 @login_required
 def remove_from_cart_ajax(request):
+    print("Endpoint remove_from_cart_ajax terpanggil")  # Debugging
     sneaker = request.POST.get('sneaker')
-    cart = get_object_or_404(UserCart, user=request.user)
-    cart_item = get_object_or_404(CartItem, user=request.user, sneaker=sneaker)
+    print("Sneaker ID yang diterima:", sneaker)  # Debugging
 
-    cart.total_items -= cart_item.quantity
-    cart.total_price -= cart_item.total_price
+    try:
+        cart = get_object_or_404(UserCart, user=request.user)
+        cart_item = get_object_or_404(CartItem, user=request.user, sneaker=sneaker)
 
-    cart.save()
-    cart_item.delete()
+        cart.total_items -= cart_item.quantity
+        cart.total_price -= cart_item.total_price
 
-    return HttpResponse(b"DELETED", status=201)
+        cart.save()
+        cart_item.delete()
+
+        return JsonResponse({'status': 'success', 'message': 'Item removed successfully'})
+    except Exception as e:
+        print(f"Error: {e}")  # Debugging
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
 def get_user_cart(request):
     user_cart = UserCart.objects.filter(user=request.user)
