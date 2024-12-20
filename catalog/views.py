@@ -87,3 +87,21 @@ def product_detail(request, slug):
     return render(request, 'detail_product/detail_product.html', {'product': product})
     return render(request, 'detail_product.html', context)
 
+def get_product_by_id(request, id):
+    
+    product = get_object_or_404(Sneaker, id=id)
+    product_data = {
+        "model": "catalog.sneaker",
+        "pk": product.id,
+        "fields": {
+            "name": product.name,
+            "brand": product.brand,
+            "price": product.price,
+            "release_date": product.release_date.strftime('%Y-%m-%d') if product.release_date else None,
+            "image": product.image,
+            "slug": product.slug
+        }
+    }
+    return JsonResponse(product_data)
+
+
