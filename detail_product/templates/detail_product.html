@@ -111,26 +111,40 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     async function loadRecentlyViewedProducts() {
-    const recentlyViewedSlugs = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
-    if (recentlyViewedSlugs.length === 0) return;
+        const recentlyViewedSlugs = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+        if (recentlyViewedSlugs.length === 0) {
+            document.getElementById('recently-viewed-products').innerHTML = '<p>No recently viewed products.</p>';
+            return;
+        }
 
-    // Fetch product details for all slugs in FIFO order
-    const response = await fetch(`/catalog/recently_viewed?slugs=${recentlyViewedSlugs.join(",")}`);
-    const products = await response.json();
+        // Fetch product details for all slugs in FIFO order
+        const response = await fetch(`/catalog/recently_viewed?slugs=${recentlyViewedSlugs.join(",")}`);
+        
+        if (!response.ok) {
+            console.error('Failed to fetch recently viewed products:', response.statusText);
+            return;
+        }
 
-    const container = document.getElementById('recently-viewed-products');
-    container.innerHTML = products.map(product => `
-        <a href="${product.url}" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
-            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover mb-4">
-            <h3 class="text-black font-bold text-lg">${product.name}</h3>
-            <p class="text-gray-500">${product.brand}</p>
-            <p class="text-black font-semibold text-lg">$${product.price}</p>
-        </a>
-    `).join("");
-}
+        const products = await response.json();
+        const container = document.getElementById('recently-viewed-products');
 
-// Load recently viewed products on page load
-window.addEventListener('DOMContentLoaded', loadRecentlyViewedProducts);
+        if (products.length === 0) {
+            container.innerHTML = '<p>No recently viewed products.</p>'; // Handle empty response
+            return;
+        }
+
+        container.innerHTML = products.map(product => `
+            <a href="/catalog/products/${product.slug}/" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
+                <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover mb-4">
+                <h3 class="text-black font-bold text-lg">${product.name} </h3>
+                <p class="text-gray-500">${product.brand}</p>
+                <p class="text-black font-semibold text-lg">$${product.price}</p>
+            </a>
+        `).join("");
+    }
+
+    // Load recently viewed products on page load
+    window.addEventListener('DOMContentLoaded', loadRecentlyViewedProducts);
 
     function showLoginPopup() {
         document.getElementById('loginModal').classList.remove('hidden');
@@ -162,58 +176,95 @@ addRecentlyViewedProduct('{{ product.slug }}');
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<div class="container mx-auto p-4 mt-10">
+    <h2 class="text-2xl font-semibold mb-4">Comments</h2>
+    <div id="comments-section">
+        <!-- Comments will be dynamically loaded here -->
+    </div>
+
+    {% if user.is_authenticated %}
+        <h3 class="text-xl font-semibold mt-4">Add a Comment</h3>
+        <form id="comment-form">
+            <input type="hidden" id="user" value="{{ user.username }}">  <!-- Hidden input for username -->
+            <textarea id="content" placeholder="Your Comment" required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    {% else %}
+        <p>You must be logged in to comment. <a href="{% url 'homepage:login' %}">Login here</a>.</p>
+    {% endif %}
+</div>
+
 <script>
-    async function loadRecentlyViewedProducts() {
-    const recentlyViewedSlugs = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
-    const validSlugs = recentlyViewedSlugs.filter(slug => slug);
-    if (recentlyViewedSlugs.length === 0) return;
+    // Assuming you have a product object available in your context
+    const product = {
+        slug: "{{ product.slug }}",  // Pass the product slug
+        name: "{{ product.name }}",   // Pass other product details if needed
+        // Add other fields as necessary
+    };
 
-    // Fetch product details for all slugs in FIFO order
-    const response = await fetch(`/catalog/recently_viewed?slugs=${recentlyViewedSlugs.join(",")}`);
-    const products = await response.json();
+    async function loadComments() {
+        const response = await fetch(`/detail_product/product/${product.slug}/comments/`);
+        const comments = await response.json();
+        const commentsSection = document.getElementById('comments-section');
 
-    const container = document.getElementById('recently-viewed-products');
-    const productUrl = `/catalog/products/${product.slug}/`; 
-    container.innerHTML = products.map(product => `
-        <a href="${productUrl}" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
-            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover mb-4">
-            <h3 class="text-black font-bold text-lg">${product.name}</h3>
-            <p class="text-gray-500">${product.brand}</p>
-            <p class="text-black font-semibold text-lg">$${product.price}</p>
-        </a>
-    `).join("");
-}
-
-// Load recently viewed products on page load
-window.addEventListener('DOMContentLoaded', loadRecentlyViewedProducts);
-
-    function showLoginPopup() {
-        document.getElementById('loginModal').classList.remove('hidden');
+        commentsSection.innerHTML = comments.map(comment => `
+            <div class="comment">
+                <strong>${comment.user}</strong>
+                <p>${comment.content}</p>
+                <small>${new Date(comment.created_at).toLocaleString()}</small>
+            </div>
+        `).join('');
     }
 
-    function closeLoginModal() {
-        document.getElementById('loginModal').classList.add('hidden');
-    }
-    function addRecentlyViewedProduct(slug) {
-    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+    document.addEventListener('DOMContentLoaded', () => {
+        loadComments();
 
-    // Check if the product is already in the list
-    if (!recentlyViewed.includes(slug)) {
-        recentlyViewed.push(slug);  // Add to the end of the array for FIFO
-        localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
-    }
-}
+        const commentForm = document.getElementById('comment-form');
+        if (commentForm) {  // Check if the form exists
+            commentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();  // Prevent the default form submission
 
+                const userElement = document.getElementById('user');
+                const contentElement = document.getElementById('content');
 
+                // Check if elements are found
+                if (!userElement || !contentElement) {
+                    console.error('User or content element not found');
+                    return;  // Exit if elements are not found
+                }
 
-// Call this function when the product detail page is loaded
-addRecentlyViewedProduct('{{ product.slug }}');
+                const user = userElement.value;  // Get the username from the hidden input
+                const content = contentElement.value;  // Get the content from the textarea
+
+                // Check if content is empty
+                if (!content) {
+                    console.error('Content is empty');
+                    return;  // Exit if content is empty
+                }
+
+                const response = await fetch(`/detail_product/product/${product.slug}/add_comment/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user, content }),
+                });
+
+                if (response.ok) {
+                    loadComments();  // Reload comments after adding a new one
+                    commentForm.reset();  // Clear the form
+                } else {
+                    console.error('Failed to add comment:', response.statusText);
+                }
+            });
+        } else {
+            console.error('Comment form not found');
+        }
+    });
 </script>
 
 {% include 'footer.html' %}
 {% endblock content %}
-
 
 {% block extra_js %}
 <script>
@@ -259,3 +310,4 @@ function getCookie(name) {
 
 
 {% endblock %}
+

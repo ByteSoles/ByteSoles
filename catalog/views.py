@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from catalog.models import Sneaker
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
+from detail_product.models import Product
 
 def view_catalog(request):
     sneakers = Sneaker.objects.all().values()
@@ -37,69 +38,25 @@ def get_filtered_products(request):
 
     return JsonResponse(product_list, safe=False)
 
-def show_product_by_slug(request, product_slug):
-    product = get_object_or_404(Sneaker, slug=product_slug)
 
-
-    recent_products = request.session.get('recently_viewed', [])
-
-    if product.id not in recent_products:
-        recent_products.append(product.id)
-        if len(recent_products) > 5:
-            recent_products.pop(0)  
-
-    request.session['recently_viewed'] = recent_products
-
-
-    # Track recently viewed products in the session
-    recent_products = request.session.get('recently_viewed', [])
-
-    if product.id not in recent_products:
-        recent_products.append(product.id)
-        if len(recent_products) > 5:
-            recent_products.pop(0)  # Keep only the last 5 items
-
-    request.session['recently_viewed'] = recent_products
-
-    context = {
-        'product': product,
-    }
-    return render(request, "detail_product.html", context)
-
-def get_recently_viewed(request):
-    recent_ids = request.session.get('recently_viewed', [])
-    recent_products = Sneaker.objects.filter(id__in=recent_ids)
-    
-    data = [
-        {
-            'name': product.name,
-            'brand': product.brand,
-            'price': product.price,
-            'image': product.image,
-            'slug': product.slug,
-        }
-        for product in recent_products
-    ]
-    
-    return JsonResponse(data, safe=False)
 def product_detail(request, slug):
     product = get_object_or_404(Sneaker, slug=slug)
     return render(request, 'detail_product/detail_product.html', {'product': product})
     return render(request, 'detail_product.html', context)
 
 def get_product_by_id(request, id):
-    
-    product = get_object_or_404(Sneaker, id=id)
+    product = get_object_or_404(Product, id=id)
     product_data = {
-        "model": "catalog.sneaker",
+        "model": "detail_product.product",
         "pk": product.id,
         "fields": {
             "name": product.name,
             "brand": product.brand,
-            "price": product.price,
-            "release_date": product.release_date.strftime('%Y-%m-%d') if product.release_date else None,
-            "image": product.image,
-            "slug": product.slug
+            "price":product.price,
+            "description": product.description,
+            "release_date": product.release_date,
+            "slug" : product.slug,
+            "image": product.image if product.image else '',
         }
     }
     return JsonResponse(product_data)
