@@ -106,7 +106,7 @@ from django.http import JsonResponse
 def remove_from_cart_ajax(request):
     print("Endpoint remove_from_cart_ajax terpanggil")  # Debugging
     sneaker = request.POST.get('sneaker')
-    print("Sneaker ID yang diterima:", sneaker)  # Debugging
+    print("Sneaker ID yang diterima:", sneaker)  
 
     try:
         cart = get_object_or_404(UserCart, user=request.user)
@@ -123,6 +123,81 @@ def remove_from_cart_ajax(request):
         print(f"Error: {e}")  # Debugging
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     
+
+@csrf_exempt
+@require_POST
+# @login_required(login_url='homepage:login')
+def remove_from_cart_ajax_flutter(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        sneaker_id = request.POST.get('sneaker')
+        sneaker_name = request.POST.get('sneaker_name')
+        sneaker_price = request.POST.get('sneaker_price')
+        sneaker_image = request.POST.get('sneaker_image')
+        quantity = request.POST.get('quantity')
+        purchase_date = request.POST.get('purchase_date')
+        total_price = request.POST.get('total_price')
+        
+        # Cari dan hapus item berdasarkan kombinasi field
+        try:
+            cart_item = CartItem.objects.get(
+                user_id=user_id,
+                sneaker_id=sneaker_id,
+                sneaker_name=sneaker_name,
+                sneaker_price=sneaker_price,
+                sneaker_image=sneaker_image,
+                quantity=quantity,
+                purchase_date=purchase_date,
+                total_price=total_price,
+            )
+            cart_item.delete()
+            return JsonResponse({'status': 'success'})
+        except CartItem.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Item tidak ditemukan'}, status=404)
+
+@csrf_exempt
+@require_POST
+def add_to_cart_flutter(request):
+    if request.method == 'POST':
+        try:
+            user_id = request.POST.get('user')
+            sneaker_id = request.POST.get('sneaker')
+            
+            user = User.objects.get(id=user_id)
+            sneaker = Sneaker.objects.get(id=sneaker_id)
+            cart = UserCart.objects.get(user=user)
+
+            try:
+                cart_item = CartItem.objects.get(user=user, sneaker=sneaker)
+                cart_item.quantity += 1
+                cart_item.total_price += sneaker.price
+            except CartItem.DoesNotExist:
+                cart_item = CartItem(
+                    user=user,
+                    sneaker=sneaker,
+                    sneaker_name=sneaker.name,
+                    sneaker_price=sneaker.price,
+                    sneaker_image=sneaker.image,
+                    quantity=1,
+                    total_price=sneaker.price
+                )
+
+            cart.total_items += 1
+            cart.total_price += sneaker.price
+
+            cart.save()
+            cart_item.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Item berhasil ditambahkan ke keranjang'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+
 def get_user_cart(request):
     user_cart = UserCart.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("json", user_cart), content_type="application/json")
