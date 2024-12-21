@@ -6,31 +6,29 @@ import json
 
 @csrf_exempt
 def login(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            auth_login(request, user)
-            print(request.user)
-            # Status login sukses.
-            return JsonResponse({
-                "username": user.username,
-                "status": True,
-                "message": "Login sukses!"
-                # Tambahkan data lainnya jika ingin mengirim data ke Flutter.
-            }, status=200)
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                return JsonResponse({
+                    "status": True,
+                    "message": "Login successful!",
+                    "user_id": user.id,
+                    "username": user.username,
+                }, status=200)
+            else:
+                return JsonResponse({
+                    "status": False,
+                    "message": "Login failed, account disabled."
+                }, status=401)
         else:
             return JsonResponse({
                 "status": False,
-                "message": "Login gagal, akun dinonaktifkan."
+                "message": "Login failed, check your email/password."
             }, status=401)
-
-    else:
-        return JsonResponse({
-            "status": False,
-            "message": "Login gagal, periksa kembali email atau kata sandi."
-        }, status=401)
 
 @csrf_exempt
 def register(request):
