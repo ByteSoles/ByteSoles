@@ -6,32 +6,62 @@ import json
 
 @csrf_exempt
 def login(request):
-    username = request.POST['username']
-    password = request.POST['password']
+    print("=== Login Debug ===")
+    print(f"Request method: {request.method}")
+    print(f"Content type: {request.headers.get('Content-Type')}")
+    print(f"Request body: {request.body}")
+    
+    try:
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+    except json.JSONDecodeError:
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+    print(f"Login attempt for username: {username}")
+
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
             auth_login(request, user)
-            print(request.user)
-            # Status login sukses.
-            return JsonResponse({
+            
+            print(f"Login successful")
+            print(f"Session ID: {request.session.session_key}")
+            print(f"User: {user.username}")
+            print(f"Is authenticated: {request.user.is_authenticated}")
+            
+            response = JsonResponse({
                 "username": user.username,
                 "status": True,
-                "message": "Login sukses!"
-                # Tambahkan data lainnya jika ingin mengirim data ke Flutter.
+                "message": "Login sukses!",
+                "sessionid": request.session.session_key,
             }, status=200)
+            
+            response.set_cookie(
+                'sessionid',
+                request.session.session_key,
+                httponly=False,
+                samesite='None',
+                secure=False,
+            )
+            
+            print(f"Response cookies: {response.cookies}")
+            print("===================")
+            
+            return response
         else:
             return JsonResponse({
                 "status": False,
                 "message": "Login gagal, akun dinonaktifkan."
             }, status=401)
-
     else:
         return JsonResponse({
             "status": False,
             "message": "Login gagal, periksa kembali email atau kata sandi."
         }, status=401)
-
+    
+    
 @csrf_exempt
 def register(request):
     if request.method == 'POST':

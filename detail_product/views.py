@@ -24,68 +24,72 @@ def get_product_by_id(request, id):
     return JsonResponse(product_data)
 
 
-
-
-@csrf_exempt  # Since we're handling this as an API endpoint
+@csrf_exempt
 def add_comment(request, product_slug):
-    print("=== Debug Info ===")
-    print(f"Is user authenticated: {request.user.is_authenticated}")
+    print("=== Comment Request Debug ===")
+    print(f"Request method: {request.method}")
     print(f"User: {request.user}")
     print(f"Session ID: {request.session.session_key}")
-    print(f"Headers: {request.headers}")
+    print(f"Headers: {dict(request.headers)}")
     print(f"Cookies: {request.COOKIES}")
-    print("=================")
-    # Check authentication manually
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'User not authenticated'
-        }, status=401)  # Return 401 Unauthorized instead of redirecting
+    print("=========================")
 
-    if request.method != 'POST':
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Method not allowed'
-        }, status=405)
+    if request.method == 'POST':
+        try:
+            # Check if user is authenticated
+            if not request.user.is_authenticated:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'User not authenticated'
+                }, status=401)
 
-    try:
-        # Add debug prints
-        print(f"User attempting to comment: {request.user.username}")
-        print(f"Product slug: {product_slug}")
-        print(f"Request data: {request.POST}")
+            # Get the product
+            product = get_object_or_404(Product, slug=product_slug)
+            
+            # Get comment content from request
+            try:
+                data = json.loads(request.body)
+                content = data.get('content')
+            except json.JSONDecodeError:
+                content = request.POST.get('content')
 
-        product = get_object_or_404(Product, slug=product_slug)
-        content = request.POST.get('content')
+            if not content:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Comment content is required'
+                }, status=400)
 
-        if not content:
+            # Create the comment
+            comment = Comment.objects.create(
+                product=product,
+                user=request.user,
+                content=content
+            )
+
+            return JsonResponse({
+                'status': 'success',
+                'comment': {
+                    'user': comment.user.username,
+                    'content': comment.content,
+                    'created_at': comment.created_at.isoformat()
+                }
+            })
+        except Exception as e:
+            print(f"Error creating comment: {str(e)}")
             return JsonResponse({
                 'status': 'error',
-                'message': 'Comment content is required'
+                'message': str(e)
             }, status=400)
 
-        comment = Comment.objects.create(
-            product=product,
-            user=request.user,
-            content=content
-        )
-
-        return JsonResponse({
-            'status': 'success',
-            'comment': {
-                'user': request.user.username,
-                'content': comment.content,
-                'created_at': comment.created_at.isoformat()
-            }
-        })
-
-    except Exception as e:
-        print(f"Error creating comment: {str(e)}")  # Debug print
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Method not allowed'
+    }, status=405)
 
 def get_comments(request, product_slug):
+    print("=== Comment Load Debug ===")
+    print(f"Request method: {request.method}")
+    print(f"User: {request.user}")
     product = get_object_or_404(Product, slug=product_slug)
     comments = product.comments.all().values('user', 'content', 'created_at')
     return JsonResponse(list(comments), safe=False)
