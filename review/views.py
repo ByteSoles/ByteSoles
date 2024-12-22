@@ -61,7 +61,7 @@ def add_review_ajax(request, slug):
     
     rating.save()
 
-    return HttpResponse(b"CREATED", status=201)
+    return HttpResponse(b"CREATED", status=200)
 
 @csrf_exempt
 @require_POST
@@ -83,7 +83,7 @@ def edit_review_ajax(request, slug):
     review.save()
     rating.save()
 
-    return HttpResponse(b"UPDATED", status=201)
+    return HttpResponse(b"UPDATED", status=200)
 
 @login_required
 def delete_review(request, slug):

@@ -11,7 +11,6 @@ def show_product(request, product_name):
     if product.id in recent_products:
         recent_products.remove(product.id)
     recent_products.insert(0, product.id)
-    print("@@@@@@@@@@@")
     
     # Keep only the last 5 items in recently viewed
     recent_products = recent_products[:5]

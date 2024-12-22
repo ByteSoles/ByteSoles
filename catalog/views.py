@@ -105,3 +105,4 @@ def get_product_by_id(request, id):
     return JsonResponse(product_data)
 
 
+

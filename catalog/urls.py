@@ -1,5 +1,5 @@
 from django.urls import path
-from catalog.views import view_catalog, get_product_json, get_filtered_products, show_product_by_slug, get_recently_viewed, product_detail,get_product_by_id
+from catalog.views import view_catalog, get_product_json, get_filtered_products, show_product_by_slug, get_recently_viewed, product_detail, get_product_by_id
 
 app_name = 'catalog'
 
