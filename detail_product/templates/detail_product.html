@@ -169,6 +169,7 @@ addRecentlyViewedProduct('{{ product.slug }}');
 <script>
     async function loadRecentlyViewedProducts() {
     const recentlyViewedSlugs = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+    const validSlugs = recentlyViewedSlugs.filter(slug => slug);
     if (recentlyViewedSlugs.length === 0) return;
 
     // Fetch product details for all slugs in FIFO order
@@ -176,8 +177,9 @@ addRecentlyViewedProduct('{{ product.slug }}');
     const products = await response.json();
 
     const container = document.getElementById('recently-viewed-products');
+    const productUrl = `/catalog/products/${product.slug}/`; 
     container.innerHTML = products.map(product => `
-        <a href="${product.url}" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
+        <a href="${productUrl}" class="relative bg-white shadow-md rounded-lg flex flex-col border p-4">
             <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover mb-4">
             <h3 class="text-black font-bold text-lg">${product.name}</h3>
             <p class="text-gray-500">${product.brand}</p>

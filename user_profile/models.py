@@ -7,6 +7,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     shoe_size = models.FloatField(null=True, blank=True)
     shipping_address = models.TextField(null=True, blank=True)  # Mengizinkan nilai null dan blank
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     
     def __str__(self):
         return self.user.username

@@ -98,7 +98,7 @@ def delete_review(request, slug):
     review.delete()
     rating.save()
 
-    return HttpResponse(b"DELETED", status=201)
+    return HttpResponse(b"DELETED", status=200)
 
 def get_rating(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug)
@@ -110,8 +110,12 @@ def get_rating(request, slug):
 
     return HttpResponse(rating.rating)
 
+def get_score_by_username(request, sneaker, username):
+    review = get_object_or_404(Review, sneaker=sneaker, username=username)
+    return HttpResponse(serializers.serialize("json", [review]), content_type="application/json")
+
 def show_xml(request, slug):
-    sneaker =get_object_or_404(Sneaker, slug=slug)
+    sneaker = get_object_or_404(Sneaker, slug=slug)
     data = Review.objects.filter(sneaker=sneaker)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 

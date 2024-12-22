@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from .models import UserProfile
 from .forms import UserProfileForm 
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def profile_view(request):
@@ -61,34 +62,119 @@ def update_personal_info(request):
     return JsonResponse({'status': 'error'}, status=400)
 
 @login_required
+@csrf_exempt
 def update_profile(request):
     if request.method == 'POST':
         try:
-            # Update personal info
-            if 'first_name' in request.POST:
-                request.user.first_name = request.POST.get('first_name')
-                request.user.last_name = request.POST.get('last_name')
-                request.user.email = request.POST.get('email')
-                request.user.profile.shoe_size = request.POST.get('shoe_size')
-                request.user.save()
-                request.user.profile.save()
-                message = "Informasi pribadi berhasil diperbarui"
+            user = request.user
+            data = request.POST
             
-            # Update shipping info
-            elif 'shipping_address' in request.POST:
-                request.user.profile.shipping_address = request.POST.get('shipping_address')
-                request.user.profile.save()
-                message = "Alamat pengiriman berhasil diperbarui"
+            # Update user fields
+            user.first_name = data.get('first_name', user.first_name)
+            user.last_name = data.get('last_name', user.last_name)
+            user.email = data.get('email', user.email)
+            
+            # Update profile fields
+            shipping_address = data.get('shipping_address', '')
+            user.profile.shipping_address = shipping_address if shipping_address else '-'
+            
+            if 'shoe_size' in data:
+                try:
+                    shoe_size = float(data.get('shoe_size'))
+                    user.profile.shoe_size = shoe_size
+                except (ValueError, TypeError):
+                    pass
+            
+            # Save both user and profile
+            user.save()
+            user.profile.save()
+            
+            print(f"Updated shipping_address: {user.profile.shipping_address}")  # Debug print
             
             return JsonResponse({
                 'status': 'success',
-                'message': message
+                'message': 'Profil berhasil diperbarui'
             })
             
         except Exception as e:
+            print(f'Error updating profile: {e}')
             return JsonResponse({
                 'status': 'error',
                 'message': str(e)
             }, status=400)
     
-    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=400)
+
+@login_required
+@csrf_exempt
+def get_profile(request):
+    if request.method == 'GET':
+        try:
+            user = request.user
+            return JsonResponse({
+                'status': 'success',
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'shoe_size': user.profile.shoe_size,
+                'shipping_address': user.profile.shipping_address,
+                'profile_picture': request.build_absolute_uri(user.profile.profile_picture.url) if user.profile.profile_picture else None
+            })
+        except Exception as e:
+            print(f'Error getting profile: {e}')
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    }, status=400)
+
+@login_required
+@csrf_exempt
+def upload_profile_picture(request):
+    if request.method == 'POST' and request.FILES.get('profile_picture'):
+        try:
+            user = request.user
+            user.profile.profile_picture = request.FILES['profile_picture']
+            user.profile.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Foto profil berhasil diperbarui'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request'
+    }, status=400)
+
+@login_required
+@csrf_exempt
+def delete_account(request):
+    if request.method == 'POST':
+        try:
+            user = request.user
+            user.delete()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Akun berhasil dihapus'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request'
+    }, status=400)

@@ -1,3 +1,3 @@
-from django.forms import ModelForm
-from .models import Sneaker
+from django import forms
+
 
