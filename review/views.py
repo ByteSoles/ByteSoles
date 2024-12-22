@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import HttpResponse, Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +14,8 @@ from review.models import Review, Rating
 from review.forms import ReviewForm
 from catalog.models import Sneaker
 from keranjang.models import CartItem 
+from django.contrib.auth.models import User
+from django.db import transaction
 
 def show_reviews(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug) 
@@ -63,38 +65,59 @@ def add_review_ajax(request, slug):
 
     return HttpResponse(b"CREATED", status=200)
 
+@csrf_exempt
 def add_review_ajax_flutter(request):
-    userId = request.POST.get("userId")
-    username = request.POST.get("username")
-    sneakerId = request.POST.get("sneakerId")
-    review_description = request.POST.get("review_description")
-    score = request.POST.get("score")
-
-    new_review = Review (
-        user = userId,
-        username = username,
-        sneaker = sneakerId,
-        review_description = review_description, 
-        score = score,
-    )
-    new_review.save()
-
     try:
-        rating = get_object_or_404(Rating, sneaker=sneakerId)
-        rating.total_score += int(score)
-        rating.review_count += 1
-        rating.rating = rating.total_score / rating.review_count
-    except Http404:
-        rating = Rating (
-            sneaker = sneakerId,
-            total_score = score,
-            review_count = 1,
-            rating = score
-        )
-    
-    rating.save()
+        user_id = request.POST.get("user_id")
+        username = request.POST.get("username")
+        sneaker_id = request.POST.get("sneaker_id")
+        review_description = request.POST.get("review_description")
+        score = request.POST.get("score")
 
-    return HttpResponse(b"CREATED", status=200)
+        user = User.objects.get(id=user_id)
+        sneaker = Sneaker.objects.get(id=sneaker_id)
+
+        # Validate required fields
+        if not all([user_id, username, sneaker_id, review_description, score]):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Missing required fields'
+            }, status=400)
+
+        new_review = Review(
+            user=user,
+            username=username,
+            sneaker=sneaker,
+            review_description=review_description,
+            score=score,
+        )
+        new_review.save()
+
+        try:
+            rating = get_object_or_404(Rating, sneaker=sneaker)
+            rating.total_score += int(score)
+            rating.review_count += 1
+            rating.rating = rating.total_score / rating.review_count
+        except Http404:
+            rating = Rating(
+                sneaker=sneaker,
+                total_score=score,
+                review_count=1,
+                rating=score
+            )
+        
+        rating.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Review added successfully'
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
 
 @csrf_exempt
 @require_POST
@@ -133,6 +156,65 @@ def delete_review(request, slug):
 
     return HttpResponse(b"DELETED", status=200)
 
+@csrf_exempt
+def delete_review_flutter(request):
+    if request.method != 'POST':
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Method not allowed'
+        }, status=405)
+
+    try:
+        user_id = request.POST.get("user_id")
+        sneaker_id = request.POST.get("sneaker_id")
+
+        # Validate required fields
+        if not all([user_id, sneaker_id]):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Missing required fields'
+            }, status=400)
+
+        try:
+            user = User.objects.get(id=user_id)
+            sneaker = Sneaker.objects.get(id=sneaker_id)
+        except (User.DoesNotExist, Sneaker.DoesNotExist):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'User or Sneaker not found'
+            }, status=404)
+        
+        try:
+            rating = get_object_or_404(Rating, sneaker=sneaker)
+            review = get_object_or_404(Review, user=user, sneaker=sneaker)
+
+            rating.total_score -= review.score
+            rating.review_count -= 1
+            if rating.review_count > 0:
+                rating.rating = rating.total_score / rating.review_count
+            else:
+                rating.rating = 0
+                rating.total_score = 0
+
+            review.delete()
+            rating.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Review deleted successfully'
+            })
+        except Review.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Review not found'
+            }, status=404)
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
 def get_rating(request, slug):
     sneaker = get_object_or_404(Sneaker, slug=slug)
 
@@ -143,7 +225,7 @@ def get_rating(request, slug):
 
     return HttpResponse(rating.rating)
 
-def get_score_by_username(request, sneaker, username):
+def get_review_by_username(request, sneaker, username):
     review = get_object_or_404(Review, sneaker=sneaker, username=username)
     return HttpResponse(serializers.serialize("json", [review]), content_type="application/json")
 
