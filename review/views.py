@@ -63,6 +63,39 @@ def add_review_ajax(request, slug):
 
     return HttpResponse(b"CREATED", status=200)
 
+def add_review_ajax_flutter(request):
+    userId = request.POST.get("userId")
+    username = request.POST.get("username")
+    sneakerId = request.POST.get("sneakerId")
+    review_description = request.POST.get("review_description")
+    score = request.POST.get("score")
+
+    new_review = Review (
+        user = userId,
+        username = username,
+        sneaker = sneakerId,
+        review_description = review_description, 
+        score = score,
+    )
+    new_review.save()
+
+    try:
+        rating = get_object_or_404(Rating, sneaker=sneakerId)
+        rating.total_score += int(score)
+        rating.review_count += 1
+        rating.rating = rating.total_score / rating.review_count
+    except Http404:
+        rating = Rating (
+            sneaker = sneakerId,
+            total_score = score,
+            review_count = 1,
+            rating = score
+        )
+    
+    rating.save()
+
+    return HttpResponse(b"CREATED", status=200)
+
 @csrf_exempt
 @require_POST
 @login_required
