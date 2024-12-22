@@ -6,62 +6,30 @@ import json
 
 @csrf_exempt
 def login(request):
-    print("=== Login Debug ===")
-    print(f"Request method: {request.method}")
-    print(f"Content type: {request.headers.get('Content-Type')}")
-    print(f"Request body: {request.body}")
-    
-    try:
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
-    except json.JSONDecodeError:
+    if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
-    print(f"Login attempt for username: {username}")
-
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            auth_login(request, user)
-            
-            print(f"Login successful")
-            print(f"Session ID: {request.session.session_key}")
-            print(f"User: {user.username}")
-            print(f"Is authenticated: {request.user.is_authenticated}")
-            
-            response = JsonResponse({
-                "username": user.username,
-                "status": True,
-                "message": "Login sukses!",
-                "sessionid": request.session.session_key,
-            }, status=200)
-            
-            response.set_cookie(
-                'sessionid',
-                request.session.session_key,
-                httponly=False,
-                samesite='None',
-                secure=False,
-            )
-            
-            print(f"Response cookies: {response.cookies}")
-            print("===================")
-            
-            return response
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                auth_login(request, user)
+                return JsonResponse({
+                    "status": True,
+                    "message": "Login successful!",
+                    "user_id": user.id,
+                    "username": user.username,
+                }, status=200)
+            else:
+                return JsonResponse({
+                    "status": False,
+                    "message": "Login failed, account disabled."
+                }, status=401)
         else:
             return JsonResponse({
                 "status": False,
-                "message": "Login gagal, akun dinonaktifkan."
+                "message": "Login failed, check your email/password."
             }, status=401)
-    else:
-        return JsonResponse({
-            "status": False,
-            "message": "Login gagal, periksa kembali email atau kata sandi."
-        }, status=401)
-    
-    
+
 @csrf_exempt
 def register(request):
     if request.method == 'POST':

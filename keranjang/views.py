@@ -1,4 +1,5 @@
 import datetime
+from django.contrib.auth.models import User  
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -13,6 +14,8 @@ from django.utils.html import strip_tags
 from catalog.models import Sneaker
 from keranjang.models import CartItem, UserCart
 from django.http import JsonResponse
+from django.contrib.auth.models import User  
+
 
 
 def view_keranjang(request):
@@ -104,9 +107,9 @@ from django.http import JsonResponse
 @require_POST
 @login_required
 def remove_from_cart_ajax(request):
-    print("Endpoint remove_from_cart_ajax terpanggil")  # Debugging
+    # print("Endpoint remove_from_cart_ajax terpanggil") 
     sneaker = request.POST.get('sneaker')
-    print("Sneaker ID yang diterima:", sneaker)  
+    # print("Sneaker ID yang diterima:", sneaker)  
 
     try:
         cart = get_object_or_404(UserCart, user=request.user)
@@ -160,44 +163,66 @@ def remove_from_cart_ajax_flutter(request):
 def add_to_cart_flutter(request):
     if request.method == 'POST':
         try:
+            print("Received data:", request.POST)
+            
             user_id = request.POST.get('user')
             sneaker_id = request.POST.get('sneaker')
             
-            user = User.objects.get(id=user_id)
-            sneaker = Sneaker.objects.get(id=sneaker_id)
-            cart = UserCart.objects.get(user=user)
+            print(f"Processing: User ID: {user_id}, Sneaker ID: {sneaker_id}")
+
+            if not user_id or not sneaker_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Missing data: user_id={user_id}, sneaker_id={sneaker_id}'
+                }, status=400)
 
             try:
-                cart_item = CartItem.objects.get(user=user, sneaker=sneaker)
-                cart_item.quantity += 1
-                cart_item.total_price += sneaker.price
-            except CartItem.DoesNotExist:
-                cart_item = CartItem(
-                    user=user,
-                    sneaker=sneaker,
-                    sneaker_name=sneaker.name,
-                    sneaker_price=sneaker.price,
-                    sneaker_image=sneaker.image,
-                    quantity=1,
-                    total_price=sneaker.price
-                )
+                user = User.objects.get(id=user_id)
+                sneaker = Sneaker.objects.get(id=sneaker_id)
+            except User.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'User with id {user_id} not found'
+                }, status=404)
+            except Sneaker.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'Sneaker with id {sneaker_id} not found'
+                }, status=404)
 
-            cart.total_items += 1
-            cart.total_price += sneaker.price
+            cart, _ = UserCart.objects.get_or_create(user=user)
+            cart_item, created = CartItem.objects.get_or_create(
+                user=user,
+                sneaker=sneaker,
+                defaults={
+                    'sneaker_name': sneaker.name,
+                    'sneaker_price': sneaker.price,
+                    'sneaker_image': sneaker.image,
+                    'quantity': 0,
+                    'total_price': 0
+                }
+            )
 
-            cart.save()
+            cart_item.quantity += 1
+            cart_item.total_price = cart_item.quantity * sneaker.price
             cart_item.save()
+
+            cart.total_items = CartItem.objects.filter(user=user).count()
+            cart.total_price = sum(item.total_price for item in CartItem.objects.filter(user=user))
+            cart.save()
 
             return JsonResponse({
                 'status': 'success',
                 'message': 'Item berhasil ditambahkan ke keranjang'
             })
+            
         except Exception as e:
+            print(f"Error in add_to_cart_flutter: {str(e)}")
             return JsonResponse({
                 'status': 'error',
                 'message': str(e)
             }, status=400)
-
+        
 def get_user_cart(request):
     user_cart = UserCart.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("json", user_cart), content_type="application/json")
